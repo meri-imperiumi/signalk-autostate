@@ -1,0 +1,25 @@
+{
+  "name": "@meri-imperiumi/signalk-autostate",
+  "version": "1.0.0",
+  "description": "Automatically change navigation.state in Signal K based on vessel movement",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/meri-imperiumi/signalk-autostate.git"
+  },
+  "keywords": [
+    "signalk-node-server-plugin"
+  ],
+  "author": "Henri Bergius <henri.bergius@iki.fi>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/meri-imperiumi/signalk-autostate/issues"
+  },
+  "homepage": "https://github.com/meri-imperiumi/signalk-autostate#readme",
+  "dependencies": {
+    "where": "^0.4.0"
+  }
+}
