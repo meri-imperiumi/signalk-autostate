@@ -20,9 +20,11 @@
   },
   "homepage": "https://github.com/meri-imperiumi/signalk-autostate#readme",
   "dependencies": {
+    "debug": "^4.1.1",
     "where": "^0.4.0"
   },
   "devDependencies": {
+    "geolocation-utils": "^1.2.2",
     "mocha": "^7.0.0"
   }
 }

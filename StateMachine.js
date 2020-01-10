@@ -1,4 +1,5 @@
 const { Point } = require("where");
+const debug = require('debug')('signalk-autostate:statemachine');
 
 const notUnderWay = "not-under-way";
 const anchored = "anchored";
@@ -13,6 +14,7 @@ class StateMachine {
   }
   setState(state, update) {
     if (state !== this.lastState){
+      debug('State has changed');
       this.stateChangeTime = update.time;
       if (update.path === 'navigation.position'){
         this.stateChangePosition = update.value;
@@ -23,11 +25,6 @@ class StateMachine {
   } 
 
   update(update) {
-    //gets input update object {
-    //path: navigation.position, navigation.speedOverGround, navigation.anchor.position
-    //value: {lat long}, decimal, {lat, long},
-    //time: date`
-    //}
 
     //anchor postion has a value, we have dropped the anchor
     if (update.path === "navigation.anchor.position") {
@@ -54,18 +51,22 @@ class StateMachine {
       };
 
       if (!this.stateChangeTime ){
+        debug('First state change');
         return this.setState(notUnderWay, positionUpdate)
       }
-
       if (positionUpdate.time.getTime() - this.stateChangeTime.getTime() >= 60000 * 10) {
         //check that current position is less than 100 meters from the previous position
+        debug('After 10 minutes');
         if (!this.stateChangePosition || this.stateChangePosition.distanceTo(positionUpdate.value) <= 0.1) {
+          debug('Has not moved 100m');
           return this.setState(notUnderWay, positionUpdate);
         } else {
           //we are not in harbour we are sailing
+          debug('Has moved >100m');
           return this.setState(sailing, positionUpdate);
         }
       }
+      debug('Fallback, return old state', this.stateChangeTime, positionUpdate.time);
       return this.lastState;
     }
   }

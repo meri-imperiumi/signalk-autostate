@@ -1,5 +1,7 @@
 const assert = require('assert');
 
+let latestTime = null;
+
 module.exports = {
   position: (stateMachine, expectedState, lat, lon, minutesElapsed) => {
     const update = {
@@ -8,9 +10,10 @@ module.exports = {
         latitude: lat,
         longitude: lon, 
       },
-      time: new Date()
+      time: latestTime || new Date()
     };
     update.time.setMinutes(update.time.getMinutes() + minutesElapsed);
+    latestTime = new Date(update.time.getTime());
     assert.equal(expectedState, stateMachine.update(update));
   },
 };
