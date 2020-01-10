@@ -1,7 +1,8 @@
 var assert = require('assert');
-var stateMachine = require('../stateMachine');
+var StateMachine = require('../StateMachine');
 
 describe('not-under-way', function() {
+    const stateMachine = new StateMachine();
     it('should return that we are not under way', function(){
           const update = {
               path: "navigation.position",
@@ -12,6 +13,6 @@ describe('not-under-way', function() {
               time: new Date()
           };
           update.time.setMinutes(update.time.getMinutes() - 11);
-          assert.equal('not-under-way', stateMachine(update))
+          assert.equal('not-under-way', stateMachine.update(update))
         });
     });

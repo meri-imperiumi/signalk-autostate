@@ -1,4 +1,4 @@
-const stateMachine = require('./stateMachine');
+const StateMachine = require('./StateMachine');
 
 module.exports = function plugin(app) {
   const plugin = {};
@@ -7,6 +7,7 @@ module.exports = function plugin(app) {
   plugin.description = 'Automatically change navigation state based on vessel movement';
 
   let unsubscribes = [];
+  let stateMachine = null;
   plugin.start = function start(options) {
     const subscription = {
       context: 'vessel.self',
@@ -36,8 +37,9 @@ module.exports = function plugin(app) {
       app.setProvideStatus(`Detected state: ${initialState}`);
     }
 
+    stateMachine = new StateMachine();
     function handleValue(update) {
-      setState(stateMachine(update));
+      setState(stateMachine.update(update));
     }
 
     app.subscriptionmanager.subscribe(
