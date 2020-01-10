@@ -1,41 +1,16 @@
-var assert = require("assert");
-var StateMachine = require("../StateMachine");
+const assert = require("assert");
+const StateMachine = require("../StateMachine");
+const stateUpdate = require('./utils/stateUpdate');
 
 describe("not-under-way", function() {
   const stateMachine = new StateMachine();
   it("should return that we are not under way, when the system boots", function() {
-    const update = {
-      path: "navigation.position",
-      value: {
-        latitude: 60.254558,
-        longitude: 25.042828
-      },
-      time: new Date()
-    };
-    assert.equal("not-under-way", stateMachine.update(update));
-  });
-  it("should return that we are not under way, when system is on and position is not changing", function() {
-    const update = {
-      path: "navigation.position",
-      value: {
-        latitude: 60.254558,
-        longitude: 25.042828
-      },
-      time: new Date()
-    };
-    update.time.setMinutes(update.time.getMinutes() + 11);
-    assert.equal("not-under-way", stateMachine.update(update));
+    stateUpdate.position(stateMachine, 'not-under-way', 60.254558, 25.042828, 0);
   });
   it("should return that we are not under way, when 10 minutes has not elapsed", function() {
-    const update = {
-      path: "navigation.position",
-      value: {
-        latitude: 60.254558,
-        longitude: 25.042828
-      },
-      time: new Date()
-    };
-    update.time.setMinutes(update.time.getMinutes() + 5);
-    assert.equal("not-under-way", stateMachine.update(update));
+    stateUpdate.position(stateMachine, 'not-under-way', 60.254558, 25.042828, 5);
+  });
+  it("should return that we are not under way, when system is on and position is not changing", function() {
+    stateUpdate.position(stateMachine, 'not-under-way', 60.254558, 25.042828, 11);
   });
 });

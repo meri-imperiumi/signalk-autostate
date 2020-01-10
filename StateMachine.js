@@ -1,6 +1,9 @@
 const { Point } = require("where");
 
 const notUnderWay = "not-under-way";
+const anchored = "anchored";
+const sailing = "sailing";
+const underEngine = "under-engine"
 
 class StateMachine {
   constructor() {
@@ -27,8 +30,18 @@ class StateMachine {
     //}
 
     //anchor postion has a value, we have dropped the anchor
-    if (update.path === "navigation.anchor.position" && update.value) {
-      return "anchoring";
+    if (update.path === "navigation.anchor.position") {
+      if(update.value){
+       return this.setState(anchored, update);
+      }else{
+        return this.setState(sailing, update);
+      } 
+    }
+
+    if (update.path === "propulsion.XXX.revolutions") {
+      if(update.value){
+        return this.setState(underEngine, update);
+      }
     }
 
     if (update.path === "navigation.position") {
@@ -49,12 +62,8 @@ class StateMachine {
         if (!this.stateChangePosition || this.stateChangePosition.distanceTo(positionUpdate.value) <= 0.1) {
           return this.setState(notUnderWay, positionUpdate);
         } else {
-          //if we are not in harbour and engine is on, we are running with engine
-          if (positionUpdate.path === "navigation.engine" && positionUpdate.value) {
-            return "underEngine";
-          }
-          //we are not in harbour and engine is off, we are sailing
-          return "underSail";
+          //we are not in harbour we are sailing
+          return this.setState(sailing, positionUpdate);
         }
       }
       return this.lastState;
