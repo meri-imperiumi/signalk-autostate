@@ -46,7 +46,7 @@ class StateMachine {
 
       if (positionUpdate.time.getTime() - this.stateChangeTime.getTime() >= 60000 * 10) {
         //check that current position is less than 100 meters from the previous position
-        if (!this.stateChangePosition || this.stateChangePosition.distanceTo(positionUpdate.value) <= 100) {
+        if (!this.stateChangePosition || this.stateChangePosition.distanceTo(positionUpdate.value) <= 0.1) {
           return this.setState(notUnderWay, positionUpdate);
         } else {
           //if we are not in harbour and engine is on, we are running with engine
@@ -57,6 +57,7 @@ class StateMachine {
           return "underSail";
         }
       }
+      return this.lastState;
     }
   }
 };
