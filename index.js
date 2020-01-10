@@ -1,4 +1,4 @@
-const { Point } = require('where');
+const stateMachine = require('./stateMachine');
 
 module.exports = function plugin(app) {
   const plugin = {};
@@ -16,7 +16,11 @@ module.exports = function plugin(app) {
           period: 60000,
         },
         {
-          path: 'navigation.anchorPosition',
+          path: 'navigation.anchor.position',
+          period: 60000,
+        },
+        {
+          path: 'navigation.speedOverGround',
           period: 60000,
         },
       ],
@@ -32,25 +36,8 @@ module.exports = function plugin(app) {
       app.setProvideStatus(`Detected state: ${initialState}`);
     }
 
-    function handleValue({ path, value }) {
-      if (path === 'navigation.anchorPosition') {
-        if (!value) {
-          // No anchor position, let movement or lack thereof to determine state
-          if (currentStatus.state === 'anchored') {
-            setState('sailing');
-          }
-          return;
-        }
-        // We have anchor position, set state as anchored
-        setState('anchored');
-        return;
-      }
-      const point = new Point(value.latitude, value.longitude);
-      if (!currentStatus.position) {
-        // No previous location, set this as the latest
-        currentStatus.position = point;
-        return;
-      }
+    function handleValue(update) {
+      setState(stateMachine(update));
     }
 
     app.subscriptionmanager.subscribe(
