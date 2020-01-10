@@ -11,6 +11,9 @@ describe("transition from not-under-way to sailing", function() {
   };
   const pointOutOfBounds = geolocationUtils.moveTo(initialPoint, 90, 101);
   const pointOutOfBounds2 = geolocationUtils.moveTo(initialPoint, 90, 501);
+  after(() => {
+    stateUpdate.reset();
+  });
   it("should return that we are not under way, when the system boots", function() {
     stateUpdate.position(stateMachine, 'not-under-way', initialPoint.lat, initialPoint.lon, 0);
   });

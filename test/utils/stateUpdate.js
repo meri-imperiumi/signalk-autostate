@@ -16,4 +16,7 @@ module.exports = {
     latestTime = new Date(update.time.getTime());
     assert.equal(expectedState, stateMachine.update(update));
   },
+  reset: () => {
+    latestTime = null;
+  },
 };

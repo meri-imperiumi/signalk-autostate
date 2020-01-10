@@ -14,7 +14,7 @@ class StateMachine {
   }
   setState(state, update) {
     if (state !== this.lastState){
-      debug('State has changed');
+      debug(`State has changed from ${this.lastState} to ${state}`);
       this.stateChangeTime = update.time;
       if (update.path === 'navigation.position'){
         this.stateChangePosition = update.value;
@@ -54,9 +54,10 @@ class StateMachine {
         debug('First state change');
         return this.setState(notUnderWay, positionUpdate)
       }
-      if (positionUpdate.time.getTime() - this.stateChangeTime.getTime() >= 60000 * 10) {
+      const secondsElapsed = (positionUpdate.time.getTime() - this.stateChangeTime.getTime()) / 1000;
+      if (secondsElapsed >= 600) {
         //check that current position is less than 100 meters from the previous position
-        debug('After 10 minutes');
+        debug(`After ${secondsElapsed / 60} minutes`);
         if (!this.stateChangePosition || this.stateChangePosition.distanceTo(positionUpdate.value) <= 0.1) {
           debug('Has not moved 100m');
           return this.setState(notUnderWay, positionUpdate);
