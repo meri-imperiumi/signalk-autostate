@@ -8,10 +8,12 @@ const sailing = "sailing";
 const underEngine = "under-engine"
 
 class StateMachine {
-  constructor() {
+  constructor(positionUpdateMinutes = 10, underWayThresholdMeters = 100) {
     this.stateChangeTime = null;
     this.stateChangePosition = null;
     this.lastState = null;
+    this.positionUpdateMinutes = positionUpdateMinutes;
+    this.underWayThresholdMeters = underWayThresholdMeters;
   }
   setState(state, update) {
     if (state !== this.lastState){
@@ -62,7 +64,7 @@ class StateMachine {
         return this.setState(notUnderWay, positionUpdate)
       }
       const secondsElapsed = (positionUpdate.time.getTime() - this.stateChangeTime.getTime()) / 1000;
-      if (secondsElapsed >= 600) {
+      if (secondsElapsed >= this.positionUpdateMinutes * 60) {
         //check that current position is less than 100 meters from the previous position
         debug(`After ${secondsElapsed / 60} minutes`);
         if (!this.stateChangePosition) {
@@ -72,12 +74,12 @@ class StateMachine {
         debug(this.stateChangePosition.lat, this.stateChangePosition.lon);
         debug(positionUpdate.value.lat, positionUpdate.value.lon);
         const distanceSinceLastUpdate = geoUtil.distanceTo(this.stateChangePosition, positionUpdate.value);
-        if (distanceSinceLastUpdate < 100) {
+        if (distanceSinceLastUpdate < this.underWayThresholdMeters) {
           debug(`Has only moved ${distanceSinceLastUpdate} meters`);
           return this.setState(notUnderWay, positionUpdate);
         } else {
           //we are not in harbour we are sailing
-          debug(`Has moved > 100m (${distanceSinceLastUpdate} meters)`);
+          debug(`Has moved > ${this.underWayThresholdMeters}m (${distanceSinceLastUpdate} meters)`);
           return this.setState(sailing, positionUpdate);
         }
         if(this.lastState === sailing || this.lastState === underEngine){
