@@ -10,9 +10,9 @@ describe("transition from sailing to not-under-way", function() {
     lat: 60.254558,
     lon: 25.042828,
   };
-  const sailingPoint = geolocationUtils.moveTo(initialPoint, 90, 101);
-  const mooringPoint1 = geolocationUtils.moveTo(initialPoint, 90, 501);
-  const mooringPoint2 = geolocationUtils.moveTo(initialPoint, 90, 550);
+  const sailingPoint = geolocationUtils.moveTo(initialPoint, { heading: 90, distance: 101 });
+  const mooringPoint1 = geolocationUtils.moveTo(sailingPoint, { heading: 90, distance: 401 });
+  const mooringPoint2 = geolocationUtils.moveTo(mooringPoint1, { heading: 90, distance: 50 });
   before(() => {
       stateMachine.setState('sailing', {
         path: 'navigation.position',

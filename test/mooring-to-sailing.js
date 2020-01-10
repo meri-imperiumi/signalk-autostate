@@ -9,8 +9,8 @@ describe("transition from not-under-way to sailing", function() {
     lat: 60.254558,
     lon: 25.042828,
   };
-  const pointOutOfBounds = geolocationUtils.moveTo(initialPoint, 90, 101);
-  const pointOutOfBounds2 = geolocationUtils.moveTo(initialPoint, 90, 501);
+  const pointOutOfBounds = geolocationUtils.moveTo(initialPoint, { heading: 90, distance: 101 });
+  const pointOutOfBounds2 = geolocationUtils.moveTo(pointOutOfBounds, { heading: 90, distance: 400 });
   after(() => {
     stateUpdate.reset();
   });
