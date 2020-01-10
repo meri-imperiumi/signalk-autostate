@@ -1,4 +1,4 @@
-const where = require("where");
+const { Point } = require("where");
 
 const notUnderWay = "not-under-way";
 
@@ -34,17 +34,23 @@ class StateMachine {
     if (update.path === "navigation.position") {
       //inHarbour we have moved less than 100 meters in 10 minutes
       // check that 10 minutes has passed
+      const positionUpdate = {
+        time: update.time,
+        path: update.path,
+        value: new Point(update.value.latitude, update.value.longitude),
+      };
+
       if (!this.stateChangeTime ){
-        return this.setState(notUnderWay, update)
+        return this.setState(notUnderWay, positionUpdate)
       }
 
-      if (this.stateChangeTime.getTime() - update.time.getTime() >= 60000 * 10) {
+      if (positionUpdate.time.getTime() - this.stateChangeTime.getTime() >= 60000 * 10) {
         //check that current position is less than 100 meters from the previous position
-        if (!this.stateChangePosition || this.stateChangePosition.distanceTo(update.value) <= 100) {
-          return this.setState(notUnderWay, update);
+        if (!this.stateChangePosition || this.stateChangePosition.distanceTo(positionUpdate.value) <= 100) {
+          return this.setState(notUnderWay, positionUpdate);
         } else {
           //if we are not in harbour and engine is on, we are running with engine
-          if (update.path === "navigation.engine" && update.value) {
+          if (positionUpdate.path === "navigation.engine" && positionUpdate.value) {
             return "underEngine";
           }
           //we are not in harbour and engine is off, we are sailing
