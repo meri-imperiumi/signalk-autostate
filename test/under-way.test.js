@@ -8,10 +8,10 @@ const fs = require("fs");
 const util = require("util");
 const path = require("path");
 
-describe("sailing with faulty gps data", function() {
+describe("sailing with actual gps data", function() {
   const stateMachine = new StateMachine();
   const readFile = util.promisify(fs.readFile);
-  let dataFromFile12;
+  let dataFromFile;
   before(async () => {
     const dataPath12 = path.resolve(
       __dirname,
@@ -19,21 +19,21 @@ describe("sailing with faulty gps data", function() {
     );
     const dataPath13 = path.resolve(
       __dirname,
-      "/logs/skserver-raw_2019-09-15T13.log"
+      "./logs/skserver-raw_2019-09-15T13.log"
     );
     const dataPath14 = path.resolve(
       __dirname,
-      "/logs/skserver-raw_2019-09-15T14.log"
+      "./logs/skserver-raw_2019-09-15T14.log"
     );
 
-    dataFromFile12 = await readFile(dataPath12, "utf-8");
+    dataFromFile = await readFile(dataPath13, "utf-8");
   });
   after(() => {
     stateUpdate.reset();
   });
 
-  it("should foo", function() {
-    const allLines = dataFromFile12.split("\n");
+  it("should sail if we are actually doing it", function() {
+    const allLines = dataFromFile.split("\n");
     const values = allLines
       .map(row => {
         const [timestamp, n, value] = row.split(";");
