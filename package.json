@@ -25,6 +25,7 @@
     "where": "^0.4.0"
   },
   "devDependencies": {
-    "mocha": "^7.0.0"
+    "mocha": "^7.0.0",
+    "nmea-simple": "^2.3.0"
   }
 }

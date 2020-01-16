@@ -16,6 +16,18 @@ module.exports = {
     latestTime = new Date(update.time.getTime());
     assert.equal(expectedState, stateMachine.update(update));
   },
+
+  positionWithRealGpsData: (stateMachine, expectedState, lat, lon, timestamp) => {
+    const update = {
+      path: "navigation.position",
+      value: {
+        latitude: lat,
+        longitude: lon, 
+      },
+      time: new Date(timestamp)
+    };
+    assert.equal(expectedState, stateMachine.update(update));
+  },
   reset: () => {
     latestTime = null;
   },
