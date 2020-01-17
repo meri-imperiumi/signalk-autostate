@@ -47,7 +47,7 @@ describe("sailing with actual gps data", function() {
               lat: parsed.latitude,
               lon: parsed.longitude
             },
-            timestamp
+            timestamp: parseInt(timestamp),
           };
         } catch (error) {
           return null;
