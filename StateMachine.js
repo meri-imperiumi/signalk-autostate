@@ -1,5 +1,6 @@
 const { Point } = require("where");
-const debug = require('debug')('signalk-autostate:statemachine');
+const debug = require('debug')('signalk-autostate:statemachine:update');
+const debugFallback = require('debug')('signalk-autostate:statemachine:fallback');
 const geoUtil = require('geolocation-utils');
 
 const notUnderWay = "not-under-way";
@@ -67,20 +68,18 @@ class StateMachine {
       const secondsElapsed = (positionUpdate.time.getTime() - this.stateChangeTime.getTime()) / 1000;
       if (secondsElapsed >= this.positionUpdateMinutes * 60) {
         //check that current position is less than 100 meters from the previous position
-        debug(`After ${secondsElapsed / 60} minutes`);
+        debug(`After ${Math.round(secondsElapsed / 60)} minutes`);
         if (!this.stateChangePosition) {
           debug('Initial position update');
           return this.setState(notUnderWay, positionUpdate);
         }
-        debug(this.stateChangePosition.lat, this.stateChangePosition.lon);
-        debug(positionUpdate.value.lat, positionUpdate.value.lon);
         const distanceSinceLastUpdate = geoUtil.distanceTo(this.stateChangePosition, positionUpdate.value);
         if (distanceSinceLastUpdate < this.underWayThresholdMeters) {
-          debug(`Has only moved ${distanceSinceLastUpdate} meters`);
+          debug(`Has only moved ${Math.round(distanceSinceLastUpdate)} meters`);
           return this.setState(notUnderWay, positionUpdate);
         } else {
           //we are not in harbour we are sailing
-          debug(`Has moved > ${this.underWayThresholdMeters}m (${distanceSinceLastUpdate} meters)`);
+          debug(`Has moved > ${this.underWayThresholdMeters}m (${Math.round(distanceSinceLastUpdate)} meters)`);
           return this.setState(sailing, positionUpdate);
         }
         if(this.lastState === sailing || this.lastState === underEngine){
@@ -88,7 +87,7 @@ class StateMachine {
           return this.setState(this.lastState, positionUpdate);
         }
       }
-      debug('Fallback, return old state', this.stateChangeTime, positionUpdate.time);
+      debugFallback(`Only ${Math.round(secondsElapsed / 60)} minutes elapsed, returning old state`);
       return this.lastState;
     }
   }
