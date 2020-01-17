@@ -24,6 +24,7 @@ class StateMachine {
       }
       this.lastState = state;
     } else if (state === sailing || state === underEngine){
+      this.stateChangeTime = update.time;
       this.setPosition(update.value);
     }
     return state;
