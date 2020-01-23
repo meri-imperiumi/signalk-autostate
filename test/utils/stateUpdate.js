@@ -14,7 +14,7 @@ module.exports = {
     };
     update.time.setMinutes(update.time.getMinutes() + minutesElapsed);
     latestTime = new Date(update.time.getTime());
-    assert.equal(expectedState, stateMachine.update(update));
+    assert.equal(stateMachine.update(update), expectedState);
   },
 
   positionWithRealGpsData: (
@@ -33,9 +33,10 @@ module.exports = {
       time: new Date(timestamp)
     };
     try {
-      assert.equal(expectedState, stateMachine.update(update));
+      assert.equal(stateMachine.update(update), expectedState);
 
     } catch (e) {
+      console.log("CATCH ERROR");
       console.log(expectedState, stateMachine);
       throw(e);
     }
@@ -51,7 +52,7 @@ module.exports = {
       value: value.value,
       time: new Date(timestamp)
     };
-    assert.equal(expectedState, stateMachine.update(update));
+    assert.equal(stateMachine.update(update), expectedState);
   },
   logUpdate: (stateMachine, expectedState, value, timestamp) => {
     if (value.position) {

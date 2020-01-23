@@ -169,11 +169,9 @@ describe("With actual GPS data", function() {
 
       values.forEach(data => {
         let expectedState = "sailing";
-        /*
-        if (data.timestamp >= 1568544452078) {
+        if (data.timestamp >= new Date('2019-09-13T17:00:00.058Z')) {
           expectedState = "anchored";
         }
-        */
         stateUpdate.logUpdate(
           stateMachine,
           expectedState,
@@ -203,11 +201,9 @@ describe("With actual GPS data", function() {
       });
       values.forEach(data => {
         let expectedState = "anchored";
-        /*
-        if (data.timestamp >= 1569068400067) {
+        if (data.timestamp >= new Date('2019-09-14T08:00:00.055Z')) {
           expectedState = "sailing";
         }
-        */
         stateUpdate.logUpdate(
           stateMachine,
           expectedState,
