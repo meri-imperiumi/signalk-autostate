@@ -169,7 +169,7 @@ describe("With actual GPS data", function() {
 
       values.forEach(data => {
         let expectedState = "sailing";
-        if (data.timestamp >= new Date('2019-09-13T17:00:00.058Z')) {
+        if (data.timestamp >= new Date(1568912623809)) {
           expectedState = "anchored";
         }
         stateUpdate.logUpdate(
