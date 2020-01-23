@@ -161,7 +161,7 @@ describe("With actual GPS data", function() {
     it("should switch boat from sailing to anchoring", function() {
       const values = logs.parse(dataFromFile);
       const initialPoint = values[0];
-      stateMachine.setState("not-under-way", {
+      stateMachine.setState("sailing", {
         path: "navigation.position",
         value: new Point(initialPoint.position.lat, initialPoint.position.lon),
         time: new Date(initialPoint.timestamp)
