@@ -148,4 +148,73 @@ describe("With actual GPS data", function() {
       });
     });
   });
+  describe("arrival to anchorage", function() {
+    let dataFromFile;
+    const stateMachine = new StateMachine();
+    before(async () => {
+      dataFromFile = await logs.readFile("skserver-raw_2019-09-13T17.log");
+    });
+    after(() => {
+      stateUpdate.reset();
+    });
+
+    it("should switch boat from sailing to anchoring", function() {
+      const values = logs.parse(dataFromFile);
+      const initialPoint = values[0];
+      stateMachine.setState("not-under-way", {
+        path: "navigation.position",
+        value: new Point(initialPoint.position.lat, initialPoint.position.lon),
+        time: new Date(initialPoint.timestamp)
+      });
+
+      values.forEach(data => {
+        let expectedState = "sailing";
+        /*
+        if (data.timestamp >= 1568544452078) {
+          expectedState = "anchored";
+        }
+        */
+        stateUpdate.logUpdate(
+          stateMachine,
+          expectedState,
+          data,
+          data.timestamp
+        );
+      });
+    });
+  });
+  describe("departure from anchorage", function() {
+    let dataFromFile;
+    const stateMachine = new StateMachine();
+    before(async () => {
+      dataFromFile = await logs.readFile("skserver-raw_2019-09-14T08.log");
+    });
+    after(() => {
+      stateUpdate.reset();
+    });
+
+    it("should switch boat from anchrored to sailing", function() {
+      const values = logs.parse(dataFromFile);
+      const initialPoint = values[0];
+      stateMachine.setState("sailing", {
+        path: "navigation.position",
+        value: new Point(initialPoint.position.lat, initialPoint.position.lon),
+        time: new Date(initialPoint.timestamp)
+      });
+      values.forEach(data => {
+        let expectedState = "anchored";
+        /*
+        if (data.timestamp >= 1569068400067) {
+          expectedState = "sailing";
+        }
+        */
+        stateUpdate.logUpdate(
+          stateMachine,
+          expectedState,
+          data,
+          data.timestamp
+        );
+      });
+    });
+  });
 });
