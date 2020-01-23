@@ -152,7 +152,7 @@ describe("With actual GPS data", function() {
     let dataFromFile;
     const stateMachine = new StateMachine();
     before(async () => {
-      dataFromFile = await logs.readFile("skserver-raw_2019-09-13T17.log");
+      dataFromFile = await logs.readFile("skserver-raw_2019-09-19T17.log");
     });
     after(() => {
       stateUpdate.reset();
