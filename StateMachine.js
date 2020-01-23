@@ -37,7 +37,6 @@ class StateMachine {
   }
 
   update(update) {
-
     //anchor postion has a value, we have dropped the anchor
     if (update.path === "navigation.anchor.position") {
       if(update.value){
@@ -52,7 +51,7 @@ class StateMachine {
         return this.setState(underEngine, update);
       }
     }
-    if (update.path === "navigation.position") {
+    if (update.path === "navigation.position" && this.lastState !== 'anchored') {
       //inHarbour we have moved less than 100 meters in 10 minutes
       // check that 10 minutes has passed
       const positionUpdate = {
@@ -88,8 +87,8 @@ class StateMachine {
         }
       }
       debugFallback(`Only ${Math.round(secondsElapsed / 60)} minutes elapsed, returning old state`);
-      return this.lastState;
     }
+    return this.lastState;
   }
 };
 

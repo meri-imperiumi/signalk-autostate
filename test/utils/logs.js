@@ -14,7 +14,12 @@ module.exports = {
     const allLines = content.split("\n");
     return allLines
       .map(row => {
-        const [timestamp, n, value] = row.split(";");
+        const [timestamp, source, value] = row.split(";");
+        if (source === 'anchoralarm') {
+          const parsed = JSON.parse(value);
+          parsed.timestamp = parseInt(timestamp);
+          return parsed;
+        }
         try {
           const parsed = nmeaSimple.parseNmeaSentence(value);
           if (!parsed.latitude) {

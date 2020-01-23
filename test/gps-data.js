@@ -6,8 +6,8 @@ const logs = require("./utils/logs");
 const { Point } = require("where");
 
 describe("With actual GPS data", function() {
-  let dataFromFile;
   describe("using an hour of sailing", function() {
+    let dataFromFile;
     const stateMachine = new StateMachine();
     before(async () => {
       dataFromFile = await logs.readFile("skserver-raw_2019-09-15T12.log");
@@ -25,17 +25,42 @@ describe("With actual GPS data", function() {
         time: new Date(initialPoint.timestamp)
       });
       values.forEach(data => {
-        stateUpdate.positionWithRealGpsData(
+        stateUpdate.logUpdate(stateMachine, "sailing", data, data.timestamp);
+      });
+    });
+  });
+  describe("using an hour of being docked", function() {
+    let dataFromFile;
+    const stateMachine = new StateMachine();
+    before(async () => {
+      // TODO: Find file where we're actually docked, not anchored
+      dataFromFile = await logs.readFile("skserver-raw_2019-09-20T01.log");
+    });
+    after(() => {
+      stateUpdate.reset();
+    });
+
+    it.skip("should keep the boat not-under-way", function() {
+      const values = logs.parse(dataFromFile);
+      const positionUpdates = values.filter(val => val.position);
+      const initialPoint = positionUpdates[0];
+      stateMachine.setState("not-under-way", {
+        path: "navigation.position",
+        value: new Point(initialPoint.position.lat, initialPoint.position.lon),
+        time: new Date(initialPoint.timestamp)
+      });
+      values.forEach(data => {
+        stateUpdate.logUpdate(
           stateMachine,
-          "sailing",
-          data.position.lat,
-          data.position.lon,
+          "not-under-way",
+          data,
           data.timestamp
         );
       });
     });
   });
-  describe("using an hour of being docked", function() {
+  describe("one hour of anchoring", function() {
+    let dataFromFile;
     const stateMachine = new StateMachine();
     before(async () => {
       dataFromFile = await logs.readFile("skserver-raw_2019-09-20T01.log");
@@ -44,26 +69,22 @@ describe("With actual GPS data", function() {
       stateUpdate.reset();
     });
 
-    it("should keep the boat not-under-way", function() {
+    it("should keep the boat anchoring", function() {
       const values = logs.parse(dataFromFile);
-      const initialPoint = values[0];
-      stateMachine.setState("not-under-way", {
+      const positionUpdates = values.filter(val => val.position);
+      const initialPoint = positionUpdates[0];
+      stateMachine.setState("anchored", {
         path: "navigation.position",
         value: new Point(initialPoint.position.lat, initialPoint.position.lon),
         time: new Date(initialPoint.timestamp)
       });
       values.forEach(data => {
-        stateUpdate.positionWithRealGpsData(
-          stateMachine,
-          "not-under-way",
-          data.position.lat,
-          data.position.lon,
-          data.timestamp
-        );
+        stateUpdate.logUpdate(stateMachine, "anchored", data, data.timestamp);
       });
     });
   });
   describe("departure from harbour", function() {
+    let dataFromFile;
     const stateMachine = new StateMachine();
     before(async () => {
       dataFromFile = await logs.readFile("skserver-raw_2019-09-15T10.log");
@@ -86,17 +107,17 @@ describe("With actual GPS data", function() {
         if (data.timestamp >= 1568544452078) {
           expectedState = "sailing";
         }
-        stateUpdate.positionWithRealGpsData(
+        stateUpdate.logUpdate(
           stateMachine,
           expectedState,
-          data.position.lat,
-          data.position.lon,
+          data,
           data.timestamp
         );
       });
     });
   });
   describe("arrival to harbour", function() {
+    let dataFromFile;
     const stateMachine = new StateMachine();
     before(async () => {
       dataFromFile = await logs.readFile("skserver-raw_2019-09-21T12.log");
@@ -118,11 +139,10 @@ describe("With actual GPS data", function() {
         if (data.timestamp >= 1569068400067) {
           expectedState = "not-under-way";
         }
-        stateUpdate.positionWithRealGpsData(
+        stateUpdate.logUpdate(
           stateMachine,
           expectedState,
-          data.position.lat,
-          data.position.lon,
+          data,
           data.timestamp
         );
       });
