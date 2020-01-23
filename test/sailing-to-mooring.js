@@ -29,7 +29,7 @@ describe("transition from sailing to not-under-way", function() {
   it("should return that we are sailing, when position has changed", function() {
     stateUpdate.position(stateMachine, 'sailing', sailingPoint.lat, sailingPoint.lon, 11);
   });
-  it("should return that we are sailing, when we have arrived to mooring spot", function() {
+  it("should return that we are sailing, when we have just arrived to mooring spot", function() {
     stateUpdate.position(stateMachine, 'sailing', mooringPoint1.lat, mooringPoint1.lon, 11);
   });
   it("should return that we are not under way when we have not moved in 10 minutes", function() {
