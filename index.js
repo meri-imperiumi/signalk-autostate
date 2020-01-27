@@ -37,7 +37,7 @@ module.exports = function plugin(app) {
       app.setProvideStatus(`Detected state: ${initialState}`);
     }
 
-    stateMachine = new StateMachine();
+    stateMachine = new StateMachine(options.position_minutes, options.underway_threshold);
     function handleValue(update) {
       setState(stateMachine.update(update));
     }
@@ -65,5 +65,21 @@ module.exports = function plugin(app) {
   plugin.stop = function () {
     unsubscribes.forEach(f => f());
     unsubscribes = [];
+  }
+
+  plugin.schema = {
+    type: 'object',
+    properties: {
+      position_minutes: {
+        type: 'integer',
+        default: 10,
+        title: 'How often to check whether vessel is under way (in minutes)',
+      },
+      underway_threshold: {
+        type: 'integer',
+        default: 100,
+        title: 'Distance the vessel must move within the time to be considered under way (in meters)',
+      },
+    },
   }
 }
