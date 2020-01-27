@@ -13,6 +13,7 @@
   "keywords": [
     "signalk-node-server-plugin"
   ],
+  "signalk-plugin-enabled-by-default": true,
   "author": "Henri Bergius <henri.bergius@iki.fi> and Cannonerd",
   "license": "MIT",
   "bugs": {
