@@ -33,14 +33,13 @@ describe("With actual GPS data", function() {
     let dataFromFile;
     const stateMachine = new StateMachine();
     before(async () => {
-      // TODO: Find file where we're actually docked, not anchored
-      dataFromFile = await logs.readFile("skserver-raw_2019-09-20T01.log");
+      dataFromFile = await logs.readFile("skserver-raw_2019-09-23T04.log");
     });
     after(() => {
       stateUpdate.reset();
     });
 
-    it.skip("should keep the boat not-under-way", function() {
+    it("should keep the boat not-under-way", function() {
       const values = logs.parse(dataFromFile);
       const positionUpdates = values.filter(val => val.position);
       const initialPoint = positionUpdates[0];
