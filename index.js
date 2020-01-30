@@ -1,6 +1,6 @@
 const StateMachine = require('./StateMachine');
 
-module.exports = function plugin(app) {
+module.exports = function createPlugin(app) {
   const plugin = {};
   plugin.id = 'signalk-autostate';
   plugin.name = 'Auto-state';
@@ -34,7 +34,7 @@ module.exports = function plugin(app) {
       }
       currentStatus.state = state;
       currentStatus.statePosition = currentStatus.position;
-      app.setProvideStatus(`Detected state: ${initialState}`);
+      app.setProvideStatus(`Detected state: ${state}`);
     }
 
     stateMachine = new StateMachine(options.position_minutes, options.underway_threshold);
@@ -45,14 +45,14 @@ module.exports = function plugin(app) {
     app.subscriptionmanager.subscribe(
       subscription,
       unsubscribes,
-      subscriptionError => {
-        app.error('Error:' + subscriptionError);
+      (subscriptionError) => {
+        app.error(`Error:${subscriptionError}`);
       },
-      delta => {
-        delta.updates.forEach(u => {
+      (delta) => {
+        delta.updates.forEach((u) => {
           u.values.forEach(handleValue);
         });
-      }
+      },
     );
     app.setProvideStatus('Waiting for updates');
     const initialState = app.getSelfPath('navigation.state');
@@ -60,12 +60,12 @@ module.exports = function plugin(app) {
       currentStatus.state = initialState;
       app.setProvideStatus(`Initial state: ${initialState}`);
     }
-  }
+  };
 
   plugin.stop = function () {
-    unsubscribes.forEach(f => f());
+    unsubscribes.forEach((f) => f());
     unsubscribes = [];
-  }
+  };
 
   plugin.schema = {
     type: 'object',
@@ -81,5 +81,5 @@ module.exports = function plugin(app) {
         title: 'Distance the vessel must move within the time to be considered under way (in meters)',
       },
     },
-  }
-}
+  };
+};
