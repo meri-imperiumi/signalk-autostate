@@ -11,13 +11,13 @@ module.exports = {
     return readFile(filePath, 'utf-8');
   },
   parse: (content) => {
-    const allLines = content.split("\n");
+    const allLines = content.split('\n');
     return allLines
-      .map(row => {
-        const [timestamp, source, value] = row.split(";");
+      .map((row) => {
+        const [timestamp, source, value] = row.split(';');
         if (source === 'anchoralarm') {
           const parsed = JSON.parse(value);
-          parsed.timestamp = parseInt(timestamp);
+          parsed.timestamp = parseInt(timestamp, 10);
           return parsed;
         }
         try {
@@ -28,14 +28,14 @@ module.exports = {
           return {
             position: {
               lat: parsed.latitude,
-              lon: parsed.longitude
+              lon: parsed.longitude,
             },
-            timestamp: parseInt(timestamp),
+            timestamp: parseInt(timestamp, 10),
           };
         } catch (error) {
           return null;
         }
       })
-      .filter(row => row !== null);
+      .filter((row) => row !== null);
   },
 };

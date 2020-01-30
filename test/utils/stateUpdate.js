@@ -1,16 +1,16 @@
-const assert = require("assert");
+const assert = require('assert');
 
 let latestTime = null;
 
 module.exports = {
   position: (stateMachine, expectedState, lat, lon, minutesElapsed) => {
     const update = {
-      path: "navigation.position",
+      path: 'navigation.position',
       value: {
         latitude: lat,
-        longitude: lon
+        longitude: lon,
       },
-      time: latestTime || new Date()
+      time: latestTime || new Date(),
     };
     update.time.setMinutes(update.time.getMinutes() + minutesElapsed);
     latestTime = new Date(update.time.getTime());
@@ -22,35 +22,34 @@ module.exports = {
     expectedState,
     lat,
     lon,
-    timestamp
+    timestamp,
   ) => {
     const update = {
-      path: "navigation.position",
+      path: 'navigation.position',
       value: {
         latitude: lat,
-        longitude: lon
+        longitude: lon,
       },
-      time: new Date(timestamp)
+      time: new Date(timestamp),
     };
     try {
       assert.equal(stateMachine.update(update), expectedState);
-
     } catch (e) {
-      console.log("CATCH ERROR");
+      console.log('CATCH ERROR');
       console.log(expectedState, stateMachine);
-      throw(e);
+      throw (e);
     }
   },
   anchorPositionWithRealGpsData: (
     stateMachine,
     expectedState,
     value,
-    timestamp
+    timestamp,
   ) => {
     const update = {
       path: value.path,
       value: value.value,
-      time: new Date(timestamp)
+      time: new Date(timestamp),
     };
     assert.equal(stateMachine.update(update), expectedState);
   },
@@ -62,22 +61,22 @@ module.exports = {
         expectedState,
         value.position.lat,
         value.position.lon,
-        timestamp
+        timestamp,
       );
       return;
     }
     // TODO: Handle anchoralarm updates
     if (value.updates) {
-      value.updates.forEach(val => {
-        val.values.forEach(v => {
-          if (v.path !== "navigation.anchor.position") {
+      value.updates.forEach((val) => {
+        val.values.forEach((v) => {
+          if (v.path !== 'navigation.anchor.position') {
             return;
           }
           module.exports.anchorPositionWithRealGpsData(
             stateMachine,
             expectedState,
             v,
-            timestamp
+            timestamp,
           );
         });
       });
@@ -86,5 +85,5 @@ module.exports = {
 
   reset: () => {
     latestTime = null;
-  }
+  },
 };
