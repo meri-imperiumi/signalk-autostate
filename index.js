@@ -18,7 +18,7 @@ module.exports = function createPlugin(app) {
         },
         {
           path: 'navigation.anchor.position',
-          period: 60000,
+          period: 6000,
         },
         {
           path: 'navigation.speedOverGround',
