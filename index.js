@@ -10,7 +10,7 @@ module.exports = function createPlugin(app) {
   let stateMachine = null;
   plugin.start = function start(options) {
     const subscription = {
-      context: 'vessel.self',
+      context: 'vessels.self',
       subscribe: [
         {
           path: 'navigation.position',
@@ -33,8 +33,24 @@ module.exports = function createPlugin(app) {
         return;
       }
       currentStatus.state = state;
-      currentStatus.statePosition = currentStatus.position;
-      app.setProvideStatus(`Detected state: ${state}`);
+      app.handleMessage(plugin.id, {
+        context: `vessels.${app.selfId}`,
+        updates: [
+          {
+            source: {
+              label: plugin.id,
+            },
+            timestamp: (new Date().toISOString()),
+            values: [
+              {
+                path: 'navigation.state',
+                value: state,
+              },
+            ],
+          },
+        ],
+      });
+      app.setProviderStatus(`Detected state: ${state}`);
     }
 
     stateMachine = new StateMachine(options.position_minutes, options.underway_threshold);
@@ -50,19 +66,25 @@ module.exports = function createPlugin(app) {
       },
       (delta) => {
         delta.updates.forEach((u) => {
-          u.values.forEach(handleValue);
+          u.values.forEach((v) => {
+            handleValue({
+              path: v.path,
+              value: v.value,
+              time: new Date(u.timestamp),
+            });
+          });
         });
       },
     );
-    app.setProvideStatus('Waiting for updates');
+    app.setProviderStatus('Waiting for updates');
     const initialState = app.getSelfPath('navigation.state');
     if (initialState) {
       currentStatus.state = initialState;
-      app.setProvideStatus(`Initial state: ${initialState}`);
+      app.setProviderStatus(`Initial state: ${initialState}`);
     }
   };
 
-  plugin.stop = function () {
+  plugin.stop = function stop() {
     unsubscribes.forEach((f) => f());
     unsubscribes = [];
   };
@@ -82,4 +104,6 @@ module.exports = function createPlugin(app) {
       },
     },
   };
+
+  return plugin;
 };
