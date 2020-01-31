@@ -10,3 +10,9 @@ Currently inputs used are:
 * We're also planning to use propulsion RPMs to determine whether the vessel is "sailing" or "under-engine"
 
 The vessel navigation state can be useful for AIS data, as well as for customizing boat dashboard for the current situation.
+
+## Changes
+
+* 0.1.0 (2020-01-31)
+  - Initial release. Should work with anchor and position for a sailboat
+  - No propulsion support implemented yet
