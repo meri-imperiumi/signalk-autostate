@@ -1,7 +1,9 @@
 language: node_js
+version: 1.0
 node_js:
 - lts/*
 deploy:
+  edge: true
   provider: npm
   email: henri.bergius@iki.fi
   api_key:
