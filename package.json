@@ -1,6 +1,6 @@
 {
   "name": "@meri-imperiumi/signalk-autostate",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Automatically change navigation.state in Signal K based on vessel movement",
   "main": "index.js",
   "scripts": {

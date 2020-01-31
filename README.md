@@ -13,6 +13,8 @@ The vessel navigation state can be useful for AIS data, as well as for customizi
 
 ## Changes
 
+* 0.1.1 (2020-01-31)
+  - Fixed integration with Signal K
 * 0.1.0 (2020-01-31)
   - Initial release. Should work with anchor and position for a sailboat
   - No propulsion support implemented yet
