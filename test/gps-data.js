@@ -210,4 +210,36 @@ describe('With actual GPS data', () => {
       });
     });
   });
+
+  describe.skip('with N2K propulsion data', () => {
+    let dataFromFile;
+    const stateMachine = new StateMachine();
+    before(async () => {
+      dataFromFile = await logs.readFile('private-n2k-2017-10-06.log');
+    });
+    after(() => {
+      stateUpdate.reset();
+    });
+
+    it('should switch boat from under-engine to not-under-way', () => {
+      const values = logs.parseN2K(dataFromFile);
+      const initialPoint = values[0].updates[0];
+      stateMachine.setState('under-engine', {
+        path: 'navigation.position',
+        value: new Point(
+          initialPoint.values[0].value.latitude,
+          initialPoint.values[0].value.longitude,
+        ),
+        time: new Date(initialPoint.timestamp),
+      });
+      values.forEach((data) => {
+        const expectedState = 'under-engine';
+        stateUpdate.signalkDelta(
+          stateMachine,
+          expectedState,
+          data,
+        );
+      });
+    }).timeout(10000);
+  });
 });
