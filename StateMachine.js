@@ -27,7 +27,9 @@ class StateMachine {
       this.lastState = state;
     } else if (state === sailing || state === motoring) {
       this.stateChangeTime = update.time;
-      this.setPosition(update.value);
+      if (update.path === 'navigation.position') {
+        this.setPosition(update.value);
+      }
     }
     return state;
   }
@@ -46,7 +48,7 @@ class StateMachine {
       return this.setState(sailing, update);
     }
 
-    if (update.path === 'propulsion.XXX.revolutions') {
+    if (update.path.match(/propulsion\.([A-Za-z0-9]+)\.revolutions/)) {
       if (update.value) {
         return this.setState(motoring, update);
       }
