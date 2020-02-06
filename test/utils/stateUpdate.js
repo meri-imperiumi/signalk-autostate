@@ -82,6 +82,26 @@ module.exports = {
       });
     }
   },
+  signalkDelta: (stateMachine, expectedState, delta) => {
+    let resultingState = stateMachine.lastState;
+    delta.updates.forEach((u) => {
+      u.values.forEach((v) => {
+        const update = {
+          path: v.path,
+          value: v.value,
+          time: new Date(u.timestamp),
+        };
+        resultingState = stateMachine.update(update);
+      });
+    });
+    try {
+      assert.equal(resultingState, expectedState);
+    } catch (e) {
+      console.log('CATCH ERROR');
+      console.log(expectedState, stateMachine);
+      throw (e);
+    }
+  },
 
   reset: () => {
     latestTime = null;
