@@ -9,12 +9,14 @@ const sailing = 'sailing';
 const motoring = 'motoring';
 
 class StateMachine {
-  constructor(positionUpdateMinutes = 10, underWayThresholdMeters = 100) {
+  constructor(positionUpdateMinutes = 10, underWayThresholdMeters = 100, defaultPropulsion = 'sailing') {
     this.stateChangeTime = null;
     this.stateChangePosition = null;
     this.lastState = null;
     this.positionUpdateMinutes = positionUpdateMinutes;
     this.underWayThresholdMeters = underWayThresholdMeters;
+    this.defaultPropulsion = defaultPropulsion;
+    this.currentPropulsion = defaultPropulsion;
   }
 
   setState(state, update) {
@@ -45,13 +47,16 @@ class StateMachine {
       if (update.value) {
         return this.setState(anchored, update);
       }
-      return this.setState(sailing, update);
+      return this.setState(this.currentPropulsion, update);
     }
 
     if (update.path.match(/propulsion\.([A-Za-z0-9]+)\.revolutions/)) {
       if (update.value) {
-        return this.setState(motoring, update);
+        this.currentPropulsion = 'motoring';
+      } else {
+        this.currentPropulsion = this.defaultPropulsion;
       }
+      return this.lastState;
     }
     if (update.path === 'navigation.position' && this.lastState !== 'anchored') {
       // inHarbour we have moved less than 100 meters in 10 minutes
@@ -85,7 +90,7 @@ class StateMachine {
         }
         // we are not in harbour we are sailing
         debug(`Has moved > ${this.underWayThresholdMeters}m (${Math.round(distanceSinceLastUpdate)} meters)`);
-        return this.setState(sailing, positionUpdate);
+        return this.setState(this.currentPropulsion, positionUpdate);
       }
       debugFallback(`Only ${Math.round(secondsElapsed / 60)} minutes elapsed, returning old state`);
     }
