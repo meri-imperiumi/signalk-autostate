@@ -57,7 +57,11 @@ module.exports = function createPlugin(app) {
       app.setProviderStatus(`Detected state: ${state}`);
     }
 
-    stateMachine = new StateMachine(options.position_minutes, options.underway_threshold);
+    stateMachine = new StateMachine(
+      options.position_minutes,
+      options.underway_threshold,
+      options.default_propulsion,
+    );
     function handleValue(update) {
       setState(stateMachine.update(update));
     }
@@ -96,6 +100,15 @@ module.exports = function createPlugin(app) {
   plugin.schema = {
     type: 'object',
     properties: {
+      default_propulsion: {
+        type: 'string',
+        default: 'sailing',
+        title: 'Default means of propulsion when the vessel is moving',
+        enum: [
+          'sailing',
+          'motoring',
+        ],
+      },
       position_minutes: {
         type: 'integer',
         default: 10,
