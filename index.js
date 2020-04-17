@@ -21,6 +21,10 @@ module.exports = function createPlugin(app) {
           period: 6000,
         },
         {
+          path: 'propulsion.*.revolutions',
+          period: 6000,
+        },
+        {
           path: 'navigation.speedOverGround',
           period: 60000,
         },

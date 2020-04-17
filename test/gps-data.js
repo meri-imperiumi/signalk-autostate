@@ -210,4 +210,42 @@ describe('With actual GPS data', () => {
       });
     });
   });
+
+  describe.skip('with N2K propulsion data', () => {
+    let dataFromFile;
+    const stateMachine = new StateMachine(10, 100, 'motoring');
+    before(async () => {
+      dataFromFile = await logs.readFile('private-n2k-2017-10-06.log');
+    });
+    after(() => {
+      stateUpdate.reset();
+    });
+
+    it('should switch boat from motoring to moored', () => {
+      const values = logs.parseN2K(dataFromFile);
+      const initialPoint = values[0].updates[0];
+      stateMachine.setState('motoring', {
+        path: 'navigation.position',
+        value: new Point(
+          initialPoint.values[0].value.latitude,
+          initialPoint.values[0].value.longitude,
+        ),
+        time: new Date(initialPoint.timestamp),
+      });
+      values.forEach((data) => {
+        let expectedState = 'motoring';
+        if (!data) {
+          return;
+        }
+        if (data.timestamp >= new Date('2017-10-06T08:06:09.864Z')) {
+          expectedState = 'moored';
+        }
+        stateUpdate.signalkDelta(
+          stateMachine,
+          expectedState,
+          data,
+        );
+      });
+    }).timeout(10000);
+  });
 });
