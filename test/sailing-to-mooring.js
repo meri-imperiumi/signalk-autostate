@@ -3,7 +3,7 @@ const geolocationUtils = require('geolocation-utils');
 const StateMachine = require('../StateMachine');
 const stateUpdate = require('./utils/stateUpdate');
 
-describe('transition from sailing to not-under-way', () => {
+describe('transition from sailing to moored', () => {
   const stateMachine = new StateMachine();
   const initialPoint = {
     lat: 60.254558,
@@ -32,12 +32,12 @@ describe('transition from sailing to not-under-way', () => {
     stateUpdate.position(stateMachine, 'sailing', mooringPoint1.lat, mooringPoint1.lon, 11);
   });
   it('should return that we are not under way when we have not moved in 10 minutes', () => {
-    stateUpdate.position(stateMachine, 'not-under-way', mooringPoint1.lat, mooringPoint1.lon, 11);
+    stateUpdate.position(stateMachine, 'moored', mooringPoint1.lat, mooringPoint1.lon, 11);
   });
   it('should still return that we are not under way when we have not moved in 20 minutes', () => {
-    stateUpdate.position(stateMachine, 'not-under-way', mooringPoint1.lat, mooringPoint1.lon, 21);
+    stateUpdate.position(stateMachine, 'moored', mooringPoint1.lat, mooringPoint1.lon, 21);
   });
   it('should still return that we are not under way when we have moved only slightly', () => {
-    stateUpdate.position(stateMachine, 'not-under-way', mooringPoint2.lat, mooringPoint2.lon, 11);
+    stateUpdate.position(stateMachine, 'moored', mooringPoint2.lat, mooringPoint2.lon, 11);
   });
 });

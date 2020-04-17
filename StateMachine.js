@@ -3,10 +3,10 @@ const debug = require('debug')('signalk-autostate:statemachine:update');
 const debugFallback = require('debug')('signalk-autostate:statemachine:fallback');
 const geoUtil = require('geolocation-utils');
 
-const notUnderWay = 'not-under-way';
+const moored = 'moored';
 const anchored = 'anchored';
 const sailing = 'sailing';
-const underEngine = 'under-engine';
+const motoring = 'motoring';
 
 class StateMachine {
   constructor(positionUpdateMinutes = 10, underWayThresholdMeters = 100) {
@@ -25,7 +25,7 @@ class StateMachine {
         this.setPosition(update.value);
       }
       this.lastState = state;
-    } else if (state === sailing || state === underEngine) {
+    } else if (state === sailing || state === motoring) {
       this.stateChangeTime = update.time;
       this.setPosition(update.value);
     }
@@ -48,7 +48,7 @@ class StateMachine {
 
     if (update.path === 'propulsion.XXX.revolutions') {
       if (update.value) {
-        return this.setState(underEngine, update);
+        return this.setState(motoring, update);
       }
     }
     if (update.path === 'navigation.position' && this.lastState !== 'anchored') {
@@ -62,7 +62,7 @@ class StateMachine {
 
       if (!this.stateChangeTime) {
         debug('First state change');
-        return this.setState(notUnderWay, positionUpdate);
+        return this.setState(moored, positionUpdate);
       }
       const secondsElapsed = (positionUpdate.time.getTime() - this.stateChangeTime.getTime())
         / 1000;
@@ -71,7 +71,7 @@ class StateMachine {
         debug(`After ${Math.round(secondsElapsed / 60)} minutes`);
         if (!this.stateChangePosition) {
           debug('Initial position update');
-          return this.setState(notUnderWay, positionUpdate);
+          return this.setState(moored, positionUpdate);
         }
         const distanceSinceLastUpdate = geoUtil.distanceTo(
           this.stateChangePosition,
@@ -79,7 +79,7 @@ class StateMachine {
         );
         if (distanceSinceLastUpdate < this.underWayThresholdMeters) {
           debug(`Has only moved ${Math.round(distanceSinceLastUpdate)} meters`);
-          return this.setState(notUnderWay, positionUpdate);
+          return this.setState(moored, positionUpdate);
         }
         // we are not in harbour we are sailing
         debug(`Has moved > ${this.underWayThresholdMeters}m (${Math.round(distanceSinceLastUpdate)} meters)`);

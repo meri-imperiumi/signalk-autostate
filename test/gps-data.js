@@ -37,11 +37,11 @@ describe('With actual GPS data', () => {
       stateUpdate.reset();
     });
 
-    it('should keep the boat not-under-way', () => {
+    it('should keep the boat moored', () => {
       const values = logs.parse(dataFromFile);
       const positionUpdates = values.filter((val) => val.position);
       const initialPoint = positionUpdates[0];
-      stateMachine.setState('not-under-way', {
+      stateMachine.setState('moored', {
         path: 'navigation.position',
         value: new Point(initialPoint.position.lat, initialPoint.position.lon),
         time: new Date(initialPoint.timestamp),
@@ -49,7 +49,7 @@ describe('With actual GPS data', () => {
       values.forEach((data) => {
         stateUpdate.logUpdate(
           stateMachine,
-          'not-under-way',
+          'moored',
           data,
           data.timestamp,
         );
@@ -90,17 +90,17 @@ describe('With actual GPS data', () => {
       stateUpdate.reset();
     });
 
-    it('should switch boat from not-under-way to sailing', () => {
+    it('should switch boat from moored to sailing', () => {
       const values = logs.parse(dataFromFile);
       const initialPoint = values[0];
-      stateMachine.setState('not-under-way', {
+      stateMachine.setState('moored', {
         path: 'navigation.position',
         value: new Point(initialPoint.position.lat, initialPoint.position.lon),
         time: new Date(initialPoint.timestamp),
       });
 
       values.forEach((data) => {
-        let expectedState = 'not-under-way';
+        let expectedState = 'moored';
         if (data.timestamp >= 1568544452078) {
           expectedState = 'sailing';
         }
@@ -123,7 +123,7 @@ describe('With actual GPS data', () => {
       stateUpdate.reset();
     });
 
-    it('should switch boat from sailing to not-under-way', () => {
+    it('should switch boat from sailing to moored', () => {
       const values = logs.parse(dataFromFile);
       const initialPoint = values[0];
       stateMachine.setState('sailing', {
@@ -134,7 +134,7 @@ describe('With actual GPS data', () => {
       values.forEach((data) => {
         let expectedState = 'sailing';
         if (data.timestamp >= 1569068400067) {
-          expectedState = 'not-under-way';
+          expectedState = 'moored';
         }
         stateUpdate.logUpdate(
           stateMachine,
