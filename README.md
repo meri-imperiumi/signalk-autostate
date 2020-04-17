@@ -9,11 +9,13 @@ Currently inputs used are:
 * `navigation.position`: if the vessel moves less than 100 meters in 10m minutes, it is set as "moored", otherwise it is set as "sailing"
 * `propulsion.*.revolutions` is used to determine whether the vessel is "sailing" or "motoring" when considered to be moving
 
+The default means of propulsion ("sailing" or "motoring") when moving can be chosen in the plugin settings.
+
 The vessel navigation state can be useful for AIS data, as well as for customizing boat dashboard for the current situation.
 
 ## Changes
 
-* 0.1.2 (git master)
+* 0.1.2 (2020-04-17)
   - Switched status from `not-under-way` to `moored`
   - Switched status from `under-engine` to `motoring`
   - Added propulsion support
