@@ -58,6 +58,7 @@ module.exports = {
         }
         const filteredDelta = {
           ...delta,
+          timestamp: new Date(delta.updates[0].timestamp),
           updates: delta.updates.map((u) => ({
             ...u,
             values: u.values.filter((v) => {
