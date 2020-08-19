@@ -1,0 +1,3 @@
+.git*
+/test/logs/
+.travis.yml
