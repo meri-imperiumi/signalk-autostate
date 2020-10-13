@@ -1,7 +1,6 @@
 const { Point } = require('where');
 const debug = require('debug')('signalk-autostate:statemachine:update');
 const debugFallback = require('debug')('signalk-autostate:statemachine:fallback');
-const geoUtil = require('geolocation-utils');
 
 const moored = 'moored';
 const anchored = 'anchored';
@@ -80,10 +79,8 @@ class StateMachine {
           debug('Initial position update');
           return this.setState(moored, positionUpdate);
         }
-        const distanceSinceLastUpdate = geoUtil.distanceTo(
-          this.stateChangePosition,
-          positionUpdate.value,
-        );
+        const distanceSinceLastUpdate = this.stateChangePosition.distanceTo(positionUpdate.value)
+          * 1000;
         if (distanceSinceLastUpdate < this.underWayThresholdMeters) {
           debug(`Has only moved ${Math.round(distanceSinceLastUpdate)} meters`);
           return this.setState(moored, positionUpdate);
