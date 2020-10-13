@@ -1,6 +1,6 @@
 {
   "name": "@meri-imperiumi/signalk-autostate",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Automatically change navigation.state in Signal K based on vessel movement",
   "main": "index.js",
   "scripts": {
@@ -23,7 +23,7 @@
   "homepage": "https://github.com/meri-imperiumi/signalk-autostate#readme",
   "dependencies": {
     "debug": "^4.1.1",
-    "where": "^0.4.0"
+    "where": "^0.4.1"
   },
   "devDependencies": {
     "@canboat/canboatjs": "^1.8.0",

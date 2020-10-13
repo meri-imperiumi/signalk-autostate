@@ -15,6 +15,8 @@ The vessel navigation state can be useful for AIS data, as well as for customizi
 
 ## Changes
 
+* 0.1.3 (2020-10-13)
+  - Simplified dependency chain by only using the `where` library for location calculations at runtime
 * 0.1.2 (2020-04-17)
   - Switched status from `not-under-way` to `moored`
   - Switched status from `under-engine` to `motoring`
