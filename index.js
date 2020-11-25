@@ -73,7 +73,13 @@ module.exports = function createPlugin(app) {
         app.error(`Error:${subscriptionError}`);
       },
       (delta) => {
+        if (!delta.updates) {
+          return;
+        }
         delta.updates.forEach((u) => {
+          if (!u.values) {
+            return;
+          }
           u.values.forEach((v) => {
             handleValue({
               path: v.path,
