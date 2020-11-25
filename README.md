@@ -15,6 +15,8 @@ The vessel navigation state can be useful for AIS data, as well as for customizi
 
 ## Changes
 
+* 0.1.4 (2020-11-25)
+  - Compatibility with the upcoming "meta deltas" feature in Signal K
 * 0.1.3 (2020-10-13)
   - Simplified dependency chain by only using the `where` library for location calculations at runtime
 * 0.1.2 (2020-04-17)
