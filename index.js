@@ -8,6 +8,7 @@ module.exports = function createPlugin(app) {
 
   let unsubscribes = [];
   let stateMachine = null;
+  const setStatus = app.setPluginStatus || app.setProviderStatus;
   plugin.start = function start(options) {
     const subscription = {
       context: 'vessels.self',
@@ -54,7 +55,7 @@ module.exports = function createPlugin(app) {
           },
         ],
       });
-      app.setProviderStatus(`Detected state: ${state}`);
+      setStatus(`Detected state: ${state}`);
     }
 
     stateMachine = new StateMachine(
@@ -90,11 +91,11 @@ module.exports = function createPlugin(app) {
         });
       },
     );
-    app.setProviderStatus('Waiting for updates');
+    setStatus('Waiting for updates');
     const initialState = app.getSelfPath('navigation.state');
     if (initialState) {
       currentStatus.state = initialState;
-      app.setProviderStatus(`Initial state: ${initialState}`);
+      setStatus(`Initial state: ${initialState}`);
     }
   };
 
