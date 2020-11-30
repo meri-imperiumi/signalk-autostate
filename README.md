@@ -15,6 +15,8 @@ The vessel navigation state can be useful for AIS data, as well as for customizi
 
 ## Changes
 
+* 0.1.5 (2020-11-30)
+  - Compatibility with the new `setPluginStatus`/`setPluginError` APIs in Signal K
 * 0.1.4 (2020-11-25)
   - Compatibility with the upcoming "meta deltas" feature in Signal K
 * 0.1.3 (2020-10-13)
