@@ -49,6 +49,14 @@ class StateMachine {
       return this.setState(this.currentPropulsion, update);
     }
 
+    if (update.path.match(/propulsion\.([A-Za-z0-9]+)\.state/)) {
+      if (update.value === 'started') {
+        this.currentPropulsion = 'motoring';
+      } else {
+        this.currentPropulsion = this.defaultPropulsion;
+      }
+      return this.lastState;
+    }
     if (update.path.match(/propulsion\.([A-Za-z0-9]+)\.revolutions/)) {
       if (update.value) {
         this.currentPropulsion = 'motoring';
