@@ -37,8 +37,10 @@ module.exports = function createPlugin(app) {
     };
 
     const currentStatus = {};
+    let lastUpdate = 0;
     function setState(state) {
-      if (currentStatus.state === state) {
+      const currentUpdate = new Date().getTime();
+      if (currentStatus.state === state && (lastUpdate + 600000) > currentUpdate) {
         return;
       }
       currentStatus.state = state;
@@ -60,6 +62,7 @@ module.exports = function createPlugin(app) {
         ],
       });
       setStatus(`Detected state: ${state}`);
+      lastUpdate = currentUpdate;
     }
 
     stateMachine = new StateMachine(
