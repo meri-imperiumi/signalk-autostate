@@ -69,6 +69,7 @@ module.exports = function createPlugin(app) {
       options.position_minutes,
       options.underway_threshold,
       options.default_propulsion,
+      options.underway_threshold_speed,
     );
     function handleValue(update) {
       setState(stateMachine.update(update));
@@ -132,6 +133,11 @@ module.exports = function createPlugin(app) {
         type: 'integer',
         default: 100,
         title: 'Distance the vessel must move within the time to be considered under way (in meters)',
+      },
+      underway_threshold_speed: {
+        type: 'integer',
+        default: 2,
+        title: 'Speed which the vessel must move at to be also considered under way (in m/s)',
       },
     },
   };

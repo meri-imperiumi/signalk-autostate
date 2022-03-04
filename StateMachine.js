@@ -8,12 +8,13 @@ const sailing = 'sailing';
 const motoring = 'motoring';
 
 class StateMachine {
-  constructor(positionUpdateMinutes = 10, underWayThresholdMeters = 100, defaultPropulsion = 'sailing') {
+  constructor(positionUpdateMinutes = 10, underWayThresholdMeters = 100, defaultPropulsion = 'sailing', underWayThresholdSpeed = 2) {
     this.stateChangeTime = null;
     this.stateChangePosition = null;
     this.lastState = null;
     this.positionUpdateMinutes = positionUpdateMinutes;
     this.underWayThresholdMeters = underWayThresholdMeters;
+    this.underWayThresholdSpeed = underWayThresholdSpeed;
     this.defaultPropulsion = defaultPropulsion;
     this.currentPropulsion = defaultPropulsion;
   }
@@ -64,6 +65,13 @@ class StateMachine {
         this.currentPropulsion = this.defaultPropulsion;
       }
       return this.lastState;
+    }
+    if (update.path === 'navigation.speedOverGround' && this.lastState !== 'anchored') {
+      if (update.value > this.underWayThresholdSpeed) {
+        // Going fast, so assuming under way
+        debug(`Speed is ${update.value}m/s, over ${this.underWayThresholdSpeed}m/s, assuming under way`);
+        return this.setState(this.currentPropulsion);
+      }
     }
     if (update.path === 'navigation.position' && this.lastState !== 'anchored') {
       // inHarbour we have moved less than 100 meters in 10 minutes
