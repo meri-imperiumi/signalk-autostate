@@ -31,7 +31,7 @@
     "@signalk/n2k-signalk": "^2.1.1",
     "@signalk/signalk-schema": "^1.3.1",
     "eslint": "^8.14.0",
-    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.20.0",
     "eslint-plugin-mocha": "^10.0.4",
     "geolocation-utils": "^1.2.2",
