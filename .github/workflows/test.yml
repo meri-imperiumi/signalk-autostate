@@ -24,6 +24,6 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-    - uses: ridedott/merge-me-action@v2.10.8
+    - uses: ridedott/merge-me-action@v2.10.20
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
