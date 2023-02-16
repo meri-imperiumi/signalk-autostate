@@ -261,20 +261,39 @@ describe('With actual GPS data', () => {
     after(() => {
       stateUpdate.reset();
     });
-    it('should switch boat from moored to motoring and later moored', () => {
+    it('should switch boat from anchored to motoring and later moored', () => {
       const values = JSON.parse(dataFromFile).data;
       const initialPoint = values[0];
-      stateMachine.setState('moored', {
+
+      // Start anchored
+      stateMachine.setState('anchored', {
         path: 'navigation.position',
         value: new Point(initialPoint[1][1], initialPoint[1][0]),
         time: new Date(initialPoint[0]),
       });
+
+      // Hoist the anchor
+      stateUpdate.logUpdate(stateMachine, 'motoring', {
+        updates: [
+          {
+            values: [
+              {
+                path: 'navigation.anchor.position',
+                value: null,
+              },
+            ],
+          },
+        ],
+      }, new Date('2023-02-16T11:26:07.500Z'));
+
+      // Then run the log
       values.forEach((data) => {
-        let expectedState = 'moored';
-        if (data[0] >= '2023-02-16T11:32:00.000000000Z') {
-          expectedState = 'motoring';
+        if (data[0] < '2023-02-16T11:26:07.500Z') {
+          // No need to run the locations before hoisting anchor
+          return;
         }
-        if (data[0] >= '2023-02-16T12:18:00.000000000Z') {
+        let expectedState = 'motoring';
+        if (data[0] >= '2023-02-16T12:18:10.000000000Z') {
           expectedState = 'moored';
         }
         stateUpdate.logUpdate(stateMachine, expectedState, {
