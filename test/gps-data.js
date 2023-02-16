@@ -254,7 +254,7 @@ describe('With actual GPS data', () => {
 
   describe('anchor to mooring from History API', () => {
     let dataFromFile;
-    const stateMachine = new StateMachine(10, 100, 'motoring');
+    const stateMachine = new StateMachine();
     before(async () => {
       dataFromFile = await logs.readFile('sk-history-2023-03-16.json');
     });
@@ -272,28 +272,70 @@ describe('With actual GPS data', () => {
         time: new Date(initialPoint[0]),
       });
 
-      // Hoist the anchor
-      stateUpdate.logUpdate(stateMachine, 'motoring', {
-        updates: [
-          {
-            values: [
-              {
-                path: 'navigation.anchor.position',
-                value: null,
-              },
-            ],
-          },
-        ],
-      }, new Date('2023-02-16T11:26:07.500Z'));
-
       // Then run the log
       values.forEach((data) => {
-        if (data[0] < '2023-02-16T11:26:07.500Z') {
-          // No need to run the locations before hoisting anchor
-          return;
+        if (data[0] === '2023-02-16T11:19:10.000000000Z') {
+          // Start the engine
+          stateUpdate.logUpdate(stateMachine, 'anchored', {
+            updates: [
+              {
+                values: [
+                  {
+                    path: 'propulsion.main.state',
+                    value: 'started',
+                  },
+                ],
+              },
+            ],
+          }, new Date('2023-02-16T11:26:07.500Z'));
         }
-        let expectedState = 'motoring';
-        if (data[0] >= '2023-02-16T12:18:10.000000000Z') {
+        if (data[0] === '2023-02-16T11:26:10.000000000Z') {
+          // Hoist the anchor
+          stateUpdate.logUpdate(stateMachine, 'motoring', {
+            updates: [
+              {
+                values: [
+                  {
+                    path: 'navigation.anchor.position',
+                    value: null,
+                  },
+                ],
+              },
+            ],
+          }, new Date('2023-02-16T11:26:07.500Z'));
+        }
+        if (data[0] === '2023-02-16T12:13:20.000000000Z') {
+          // This is where we stopped the engine
+          stateUpdate.logUpdate(stateMachine, 'motoring', {
+            updates: [
+              {
+                values: [
+                  {
+                    path: 'navigation.speedOverGround',
+                    value: 0,
+                  },
+                ],
+              },
+            ],
+          }, new Date('2023-02-16T12:13:19.500Z'));
+          stateUpdate.logUpdate(stateMachine, 'moored', {
+            updates: [
+              {
+                values: [
+                  {
+                    path: 'propulsion.main.state',
+                    value: 'stopped',
+                  },
+                ],
+              },
+            ],
+          }, new Date('2023-02-16T12:13:19.500Z'));
+        }
+        let expectedState = 'anchored';
+        if (data[0] >= '2023-02-16T11:26:10.000000000Z') {
+          expectedState = 'motoring';
+        }
+        if (data[0] >= '2023-02-16T12:13:20.000000000Z') {
           expectedState = 'moored';
         }
         stateUpdate.logUpdate(stateMachine, expectedState, {

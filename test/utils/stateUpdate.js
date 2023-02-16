@@ -69,6 +69,12 @@ module.exports = {
     if (value.updates) {
       value.updates.forEach((val) => {
         val.values.forEach((v) => {
+          if (v.path === 'navigation.speedOverGround') {
+            assert.equal(stateMachine.update({
+              ...v,
+              time: new Date(timestamp),
+            }), expectedState);
+          }
           if (v.path === 'navigation.anchor.position') {
             module.exports.anchorPositionWithRealGpsData(
               stateMachine,

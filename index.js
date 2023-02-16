@@ -31,7 +31,7 @@ module.exports = function createPlugin(app) {
         },
         {
           path: 'navigation.speedOverGround',
-          period: 60000,
+          period: 6000,
         },
       ],
     };
