@@ -15,6 +15,10 @@ The vessel navigation state can be useful for AIS data, as well as for customizi
 
 ## Changes
 
+* 0.2.0 (2023-02-16)
+  - Switched "under way" heuristic to use a moving 10min window. This should eliminate some "false moored" situations
+  - Made the switch between `sailing` and `motoring` when engine is started/stopped instant when under way
+  - Added a special case for when motoring, motor is stopped and speed is zero. This goes directly to `moored`
 * 0.1.5 (2020-11-30)
   - Compatibility with the new `setPluginStatus`/`setPluginError` APIs in Signal K
 * 0.1.4 (2020-11-25)
