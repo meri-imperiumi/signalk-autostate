@@ -18,6 +18,7 @@ class StateMachine {
     this.underWayThresholdMeters = underWayThresholdMeters;
     this.defaultPropulsion = defaultPropulsion;
     this.currentPropulsion = defaultPropulsion;
+    this.currentSpeed = 0;
   }
 
   setState(state, update) {
@@ -42,37 +43,57 @@ class StateMachine {
     this.stateChangePosition = position;
   }
 
+  switchMotoringSailing(newPropulsion, update) {
+    const oldPropulsion = this.currentPropulsion;
+    if (oldPropulsion === newPropulsion) {
+      return this.lastState;
+    }
+    this.currentPropulsion = newPropulsion;
+    if (this.lastState === motoring && this.currentSpeed === 0) {
+      // Special-case when motor is stopped and speed is zero
+      debug(`Motor stopped while speed is ${this.currentSpeed}, assuming moored`);
+      return this.setState(moored, update);
+    }
+    if (this.lastState === motoring || this.lastState === sailing) {
+      // Under way, switch state to new propulsion method
+      debug(`Under way and switched from ${oldPropulsion} to ${newPropulsion}`);
+      return this.setState(newPropulsion, update);
+    }
+    return this.lastState;
+  }
+
   update(update) {
-    // anchor postion has a value, we have dropped the anchor
+    if (update.path === 'navigation.speedOverGround') {
+      this.currentSpeed = update.value;
+    }
     if (update.path === 'navigation.anchor.position') {
       if (update.value) {
+        // anchor position has a value, we have dropped the anchor
         return this.setState(anchored, update);
       }
+      // With null value the anchor is hoisted
       return this.setState(this.currentPropulsion, update);
     }
 
     if (update.path.match(/propulsion\.([A-Za-z0-9]+)\.state/)) {
       if (update.value === 'started') {
-        this.currentPropulsion = 'motoring';
-      } else {
-        this.currentPropulsion = this.defaultPropulsion;
+        return this.switchMotoringSailing(motoring, update);
       }
-      return this.lastState;
+      return this.switchMotoringSailing(this.defaultPropulsion, update);
     }
     if (update.path.match(/propulsion\.([A-Za-z0-9]+)\.revolutions/)) {
       if (update.value > 0) {
-        this.currentPropulsion = 'motoring';
-      } else {
-        this.currentPropulsion = this.defaultPropulsion;
+        return this.switchMotoringSailing(motoring, update);
       }
-      return this.lastState;
+      return this.switchMotoringSailing(this.defaultPropulsion, update);
     }
-    if (update.path === 'navigation.position' && this.lastState !== 'anchored') {
+    if (update.path === 'navigation.position' && this.lastState !== anchored) {
       // inHarbour we have moved less than 100 meters in 10 minutes
       const positionUpdate = {
         time: update.time,
         path: update.path,
         value: new Point(update.value.latitude, update.value.longitude),
+        speed: this.currentSpeed,
       };
       if (this.positions.size() > 0) {
         // Ensure that a minute has elapsed
@@ -121,6 +142,10 @@ class StateMachine {
       if (distance.dist < this.underWayThresholdMeters) {
         debug(`Has only moved ${Math.round(distance.dist)} meters in ${Math.round(distance.time / 60)} minutes (${distance.speed.toFixed(2)}m/s)`);
         return this.setState(moored, positionUpdate);
+      }
+      if (this.lastState === 'moored' && this.currentSpeed === 0 && (positionUpdate.time - this.stateChangeTime) / 60000 < 10) {
+        debug(`Has moved > ${this.underWayThresholdMeters}m (${Math.round(distance.dist)} meters) but speed is zero, assuming staying moored`);
+        return this.lastState;
       }
       // If we are not in harbour we are sailing or motoring
       debug(`Has moved > ${this.underWayThresholdMeters}m (${Math.round(distance.dist)} meters in ${Math.round(distance.time / 60)} minutes, ${distance.speed.toFixed(2)}m/s)`);

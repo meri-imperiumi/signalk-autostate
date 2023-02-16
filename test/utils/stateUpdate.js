@@ -69,15 +69,26 @@ module.exports = {
     if (value.updates) {
       value.updates.forEach((val) => {
         val.values.forEach((v) => {
-          if (v.path !== 'navigation.anchor.position') {
-            return;
+          if (v.path === 'navigation.speedOverGround') {
+            assert.equal(stateMachine.update({
+              ...v,
+              time: new Date(timestamp),
+            }), expectedState);
           }
-          module.exports.anchorPositionWithRealGpsData(
-            stateMachine,
-            expectedState,
-            v,
-            timestamp,
-          );
+          if (v.path === 'navigation.anchor.position') {
+            module.exports.anchorPositionWithRealGpsData(
+              stateMachine,
+              expectedState,
+              v,
+              timestamp,
+            );
+          }
+          if (v.path === 'propulsion.main.state') {
+            assert.equal(stateMachine.update({
+              ...v,
+              time: new Date(timestamp),
+            }), expectedState);
+          }
         });
       });
     }
