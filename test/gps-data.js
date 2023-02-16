@@ -305,4 +305,34 @@ describe('With actual GPS data', () => {
       });
     });
   });
+
+  describe('sailing with major wind shift with History API', () => {
+    let dataFromFile;
+    const stateMachine = new StateMachine();
+    before(async () => {
+      dataFromFile = await logs.readFile('sk-history-2022-09-10.json');
+    });
+    after(() => {
+      stateUpdate.reset();
+    });
+    it('should keep the boat sailing', () => {
+      const values = JSON.parse(dataFromFile).data;
+      const initialPoint = values[0];
+      stateMachine.setState('sailing', {
+        path: 'navigation.position',
+        value: new Point(initialPoint[1][1], initialPoint[1][0]),
+        time: new Date(initialPoint[0]),
+      });
+      // Then run the log
+      values.forEach((data) => {
+        const expectedState = 'sailing';
+        stateUpdate.logUpdate(stateMachine, expectedState, {
+          position: {
+            lat: data[1][1],
+            lon: data[1][0],
+          },
+        }, new Date(data[0]));
+      });
+    });
+  });
 });
