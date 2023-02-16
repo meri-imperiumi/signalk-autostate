@@ -1,4 +1,5 @@
 const { Point } = require('where');
+const CircularBuffer = require('circular-buffer');
 const debug = require('debug')('signalk-autostate:statemachine:update');
 const debugFallback = require('debug')('signalk-autostate:statemachine:fallback');
 
@@ -11,6 +12,7 @@ class StateMachine {
   constructor(positionUpdateMinutes = 10, underWayThresholdMeters = 100, defaultPropulsion = 'sailing') {
     this.stateChangeTime = null;
     this.stateChangePosition = null;
+    this.positions = new CircularBuffer(positionUpdateMinutes + 1);
     this.lastState = null;
     this.positionUpdateMinutes = positionUpdateMinutes;
     this.underWayThresholdMeters = underWayThresholdMeters;
@@ -58,7 +60,7 @@ class StateMachine {
       return this.lastState;
     }
     if (update.path.match(/propulsion\.([A-Za-z0-9]+)\.revolutions/)) {
-      if (update.value) {
+      if (update.value > 0) {
         this.currentPropulsion = 'motoring';
       } else {
         this.currentPropulsion = this.defaultPropulsion;
@@ -67,37 +69,61 @@ class StateMachine {
     }
     if (update.path === 'navigation.position' && this.lastState !== 'anchored') {
       // inHarbour we have moved less than 100 meters in 10 minutes
-      // check that 10 minutes has passed
       const positionUpdate = {
         time: update.time,
         path: update.path,
         value: new Point(update.value.latitude, update.value.longitude),
       };
+      if (this.positions.size() > 0) {
+        // Ensure that a minute has elapsed
+        if ((positionUpdate.time - this.positions.get(0).time) / 1000 < 60) {
+          return this.lastState;
+        }
+      }
+      this.positions.enq(positionUpdate);
 
       if (!this.stateChangeTime) {
-        debug('First state change');
+        debug(`First state change ${positionUpdate.value} ${positionUpdate.time}`);
         return this.setState(moored, positionUpdate);
       }
-      const secondsElapsed = (positionUpdate.time.getTime() - this.stateChangeTime.getTime())
-        / 1000;
-      if (secondsElapsed >= this.positionUpdateMinutes * 60) {
-        // check that current position is less than 100 meters from the previous position
-        debug(`After ${Math.round(secondsElapsed / 60)} minutes`);
-        if (!this.stateChangePosition) {
-          debug('Initial position update');
-          return this.setState(moored, positionUpdate);
-        }
-        const distanceSinceLastUpdate = this.stateChangePosition.distanceTo(positionUpdate.value)
-          * 1000;
-        if (distanceSinceLastUpdate < this.underWayThresholdMeters) {
-          debug(`Has only moved ${Math.round(distanceSinceLastUpdate)} meters`);
-          return this.setState(moored, positionUpdate);
-        }
-        // we are not in harbour we are sailing
-        debug(`Has moved > ${this.underWayThresholdMeters}m (${Math.round(distanceSinceLastUpdate)} meters)`);
-        return this.setState(this.currentPropulsion, positionUpdate);
+
+      if ((positionUpdate.time - this.stateChangeTime) / 60000 < this.positionUpdateMinutes) {
+        debugFallback(`Only ${Math.round((positionUpdate.time - this.stateChangeTime) / 60000)} minutes elapsed since last state change, returning old state`);
+        return this.lastState;
       }
-      debugFallback(`Only ${Math.round(secondsElapsed / 60)} minutes elapsed, returning old state`);
+
+      const distance = this.positions.toarray().reduce((d, u, idx, arr) => {
+        if (idx === 0) {
+          // Skip first entry as we're counting distances
+          return d;
+        }
+        if (Math.round((positionUpdate.time - u.time) / 60000) > this.positionUpdateMinutes) {
+          // Stale entry
+          return d;
+        }
+        const previous = arr[idx - 1];
+        const elapsed = (previous.time - u.time) / 1000;
+        const dist = previous.value.distanceTo(u.value) * 1000;
+        return {
+          dist: d.dist + dist,
+          time: d.time + elapsed,
+          speed: d.speed,
+        };
+      }, {
+        dist: 0,
+        time: 0,
+        speed: 0,
+      });
+      if (distance.time && distance.dist) {
+        distance.speed = distance.dist / distance.time;
+      }
+      if (distance.dist < this.underWayThresholdMeters) {
+        debug(`Has only moved ${Math.round(distance.dist)} meters in ${Math.round(distance.time / 60)} minutes (${distance.speed.toFixed(2)}m/s)`);
+        return this.setState(moored, positionUpdate);
+      }
+      // If we are not in harbour we are sailing or motoring
+      debug(`Has moved > ${this.underWayThresholdMeters}m (${Math.round(distance.dist)} meters in ${Math.round(distance.time / 60)} minutes, ${distance.speed.toFixed(2)}m/s)`);
+      return this.setState(this.currentPropulsion, positionUpdate);
     }
     return this.lastState;
   }

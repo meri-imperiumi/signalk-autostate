@@ -26,12 +26,12 @@ describe('transition from moored to sailing', () => {
     stateUpdate.position(stateMachine, 'moored', pointOutOfBounds.lat, pointOutOfBounds.lon, 5);
   });
   it('should return that we are sailing, when position has changed', () => {
-    stateUpdate.position(stateMachine, 'sailing', pointOutOfBounds.lat, pointOutOfBounds.lon, 11);
+    stateUpdate.position(stateMachine, 'sailing', pointOutOfBounds.lat, pointOutOfBounds.lon, 5);
   });
   it('should return that we are sailing, when position has not changed and 10 minutes have not elapsed', () => {
     stateUpdate.position(stateMachine, 'sailing', pointOutOfBounds.lat, pointOutOfBounds.lon, 5);
   });
   it('should return that we are sailing, when position has changed and 10 minutes have elapsed', () => {
-    stateUpdate.position(stateMachine, 'sailing', pointOutOfBounds2.lat, pointOutOfBounds2.lon, 15);
+    stateUpdate.position(stateMachine, 'sailing', pointOutOfBounds2.lat, pointOutOfBounds2.lon, 10);
   });
 });

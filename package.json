@@ -23,8 +23,9 @@
   },
   "homepage": "https://github.com/meri-imperiumi/signalk-autostate#readme",
   "dependencies": {
+    "circular-buffer": "^1.0.3",
     "debug": "^4.1.1",
-    "where": "^0.4.1"
+    "where": "^0.4.2"
   },
   "devDependencies": {
     "@canboat/canboatjs": "^1.8.0",

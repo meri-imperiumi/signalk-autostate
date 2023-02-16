@@ -101,7 +101,7 @@ describe('With actual GPS data', () => {
 
       values.forEach((data) => {
         let expectedState = 'moored';
-        if (data.timestamp >= 1568544451077) {
+        if (data.timestamp >= 1568544488089) {
           expectedState = 'sailing';
         }
         stateUpdate.logUpdate(
@@ -133,7 +133,7 @@ describe('With actual GPS data', () => {
       });
       values.forEach((data) => {
         let expectedState = 'sailing';
-        if (data.timestamp >= 1569068400067) {
+        if (data.timestamp >= 1569069005065) {
           expectedState = 'moored';
         }
         stateUpdate.logUpdate(
