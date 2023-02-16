@@ -87,7 +87,8 @@ class StateMachine {
         return this.setState(moored, positionUpdate);
       }
 
-      if ((positionUpdate.time - this.stateChangeTime) / 60000 < this.positionUpdateMinutes) {
+      if (this.positions.size() < this.positionUpdateMinutes
+        && (positionUpdate.time - this.stateChangeTime) / 60000 < this.positionUpdateMinutes) {
         debugFallback(`Only ${Math.round((positionUpdate.time - this.stateChangeTime) / 60000)} minutes elapsed since last state change, returning old state`);
         return this.lastState;
       }

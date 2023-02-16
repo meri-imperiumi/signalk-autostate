@@ -133,7 +133,7 @@ describe('With actual GPS data', () => {
       });
       values.forEach((data) => {
         let expectedState = 'sailing';
-        if (data.timestamp >= 1569069005065) {
+        if (data.timestamp >= 1569068464063) {
           expectedState = 'moored';
         }
         stateUpdate.logUpdate(
@@ -188,7 +188,7 @@ describe('With actual GPS data', () => {
       stateUpdate.reset();
     });
 
-    it('should switch boat from anchrored to sailing', () => {
+    it('should switch boat from anchored to sailing', () => {
       const values = logs.parse(dataFromFile);
       const initialPoint = values[0];
       stateMachine.setState('sailing', {
@@ -200,6 +200,9 @@ describe('With actual GPS data', () => {
         let expectedState = 'anchored';
         if (data.timestamp >= new Date('2019-09-14T08:00:00.055Z')) {
           expectedState = 'sailing';
+        }
+        if (data.timestamp >= new Date('2019-09-14T08:52:08.053Z')) {
+          expectedState = 'moored';
         }
         stateUpdate.logUpdate(
           stateMachine,
