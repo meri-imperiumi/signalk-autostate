@@ -251,4 +251,39 @@ describe('With actual GPS data', () => {
       });
     }).timeout(10000);
   });
+
+  describe('anchor to mooring from History API', () => {
+    let dataFromFile;
+    const stateMachine = new StateMachine(10, 100, 'motoring');
+    before(async () => {
+      dataFromFile = await logs.readFile('sk-history-2023-03-16.json');
+    });
+    after(() => {
+      stateUpdate.reset();
+    });
+    it('should switch boat from moored to motoring and later moored', () => {
+      const values = JSON.parse(dataFromFile).data;
+      const initialPoint = values[0];
+      stateMachine.setState('moored', {
+        path: 'navigation.position',
+        value: new Point(initialPoint[1][1], initialPoint[1][0]),
+        time: new Date(initialPoint[0]),
+      });
+      values.forEach((data) => {
+        let expectedState = 'moored';
+        if (data[0] >= '2023-02-16T11:32:00.000000000Z') {
+          expectedState = 'motoring';
+        }
+        if (data[0] >= '2023-02-16T12:18:00.000000000Z') {
+          expectedState = 'moored';
+        }
+        stateUpdate.logUpdate(stateMachine, expectedState, {
+          position: {
+            lat: data[1][1],
+            lon: data[1][0],
+          },
+        }, new Date(data[0]));
+      });
+    });
+  });
 });
