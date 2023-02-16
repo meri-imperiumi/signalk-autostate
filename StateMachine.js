@@ -42,30 +42,41 @@ class StateMachine {
     this.stateChangePosition = position;
   }
 
+  switchMotoringSailing(newPropulsion, update) {
+    const oldPropulsion = this.currentPropulsion;
+    if (oldPropulsion === newPropulsion) {
+      return this.lastState;
+    }
+    this.currentPropulsion = newPropulsion;
+    if (this.lastState === motoring || this.lastState === sailing) {
+      // Under way, switch state to new propulsion method
+      debug(`Under way and switched from ${oldPropulsion} to ${newPropulsion}`);
+      return this.setState(newPropulsion, update);
+    }
+    return this.lastState;
+  }
+
   update(update) {
-    // anchor postion has a value, we have dropped the anchor
     if (update.path === 'navigation.anchor.position') {
       if (update.value) {
+        // anchor position has a value, we have dropped the anchor
         return this.setState(anchored, update);
       }
+      // With null value the anchor is hoisted
       return this.setState(this.currentPropulsion, update);
     }
 
     if (update.path.match(/propulsion\.([A-Za-z0-9]+)\.state/)) {
       if (update.value === 'started') {
-        this.currentPropulsion = 'motoring';
-      } else {
-        this.currentPropulsion = this.defaultPropulsion;
+        return this.switchMotoringSailing(motoring, update);
       }
-      return this.lastState;
+      return this.switchMotoringSailing(this.defaultPropulsion, update);
     }
     if (update.path.match(/propulsion\.([A-Za-z0-9]+)\.revolutions/)) {
       if (update.value > 0) {
-        this.currentPropulsion = 'motoring';
-      } else {
-        this.currentPropulsion = this.defaultPropulsion;
+        return this.switchMotoringSailing(motoring, update);
       }
-      return this.lastState;
+      return this.switchMotoringSailing(this.defaultPropulsion, update);
     }
     if (update.path === 'navigation.position' && this.lastState !== 'anchored') {
       // inHarbour we have moved less than 100 meters in 10 minutes
