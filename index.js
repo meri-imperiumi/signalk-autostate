@@ -126,6 +126,7 @@ module.exports = function createPlugin(app) {
       position_minutes: {
         type: 'integer',
         default: 10,
+        minimum: 2,
         title: 'How often to check whether vessel is under way (in minutes)',
       },
       underway_threshold: {
