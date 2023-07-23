@@ -1,3 +1,5 @@
+const { readFile, writeFile } = require('fs/promises');
+const { join } = require('path');
 const StateMachine = require('./StateMachine');
 
 module.exports = function createPlugin(app) {
@@ -10,6 +12,7 @@ module.exports = function createPlugin(app) {
   let stateMachine = null;
   const setStatus = app.setPluginStatus || app.setProviderStatus;
   plugin.start = function start(options) {
+    const stateFile = join(app.getDataDirPath(), 'persisted-state.json');
     const subscription = {
       context: 'vessels.self',
       subscribe: [
@@ -63,6 +66,12 @@ module.exports = function createPlugin(app) {
       });
       setStatus(`Detected state: ${state}`);
       lastUpdate = currentUpdate;
+      writeFile(stateFile, JSON.stringify({
+        state,
+      }), 'utf-8')
+        .catch((e) => {
+          app.error(e.message);
+        });
     }
 
     stateMachine = new StateMachine(
@@ -99,11 +108,21 @@ module.exports = function createPlugin(app) {
       },
     );
     setStatus('Waiting for updates');
-    const initialState = app.getSelfPath('navigation.state');
-    if (initialState) {
-      currentStatus.state = initialState;
-      setStatus(`Initial state: ${initialState}`);
-    }
+    readFile(stateFile, 'utf-8')
+      .then((content) => JSON.parse(content))
+      .then((data) => {
+        currentStatus.state = data.state;
+        stateMachine.lastState = data.state;
+        setStatus(`Persisted state: ${data.state}`);
+      })
+      .catch((e) => {
+        app.error(e.message);
+        const initialState = app.getSelfPath('navigation.state');
+        if (initialState) {
+          currentStatus.state = initialState;
+          setStatus(`Initial state: ${initialState}`);
+        }
+      });
   };
 
   plugin.stop = function stop() {
