@@ -15,6 +15,8 @@ The vessel navigation state can be useful for AIS data, as well as for customizi
 
 ## Changes
 
+* 0.3.1 (2023-07-27)
+  - Fixed issue with persisted state "sticking"
 * 0.3.0 (2023-07-23)
   - Latest state is now persisted on disk to retain state between reboots (like when restarting Signal K while under way)
 * 0.2.0 (2023-02-16)
