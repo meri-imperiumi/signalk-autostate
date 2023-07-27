@@ -13,12 +13,13 @@ module.exports = function createPlugin(app) {
   const setStatus = app.setPluginStatus || app.setProviderStatus;
   plugin.start = function start(options) {
     const stateFile = join(app.getDataDirPath(), 'persisted-state.json');
+    const posMinutes = options.position_minutes || 10;
     const subscription = {
       context: 'vessels.self',
       subscribe: [
         {
           path: 'navigation.position',
-          period: 60000,
+          period: (posMinutes * 60000) / 10,
         },
         {
           path: 'navigation.anchor.position',
@@ -41,7 +42,7 @@ module.exports = function createPlugin(app) {
 
     const currentStatus = {};
     let lastUpdate = 0;
-    function setState(state) {
+    function setState(state, update) {
       const currentUpdate = new Date().getTime();
       if (currentStatus.state === state && (lastUpdate + 600000) > currentUpdate) {
         return;
@@ -54,7 +55,7 @@ module.exports = function createPlugin(app) {
             source: {
               label: plugin.id,
             },
-            timestamp: (new Date().toISOString()),
+            timestamp: update.time || new Date().toISOString(),
             values: [
               {
                 path: 'navigation.state',
@@ -68,6 +69,7 @@ module.exports = function createPlugin(app) {
       lastUpdate = currentUpdate;
       writeFile(stateFile, JSON.stringify({
         state,
+        time: update.time,
       }), 'utf-8')
         .catch((e) => {
           app.error(e.message);
@@ -80,7 +82,7 @@ module.exports = function createPlugin(app) {
       options.default_propulsion,
     );
     function handleValue(update) {
-      setState(stateMachine.update(update));
+      setState(stateMachine.update(update), update);
     }
 
     app.subscriptionmanager.subscribe(
@@ -113,6 +115,7 @@ module.exports = function createPlugin(app) {
       .then((data) => {
         currentStatus.state = data.state;
         stateMachine.lastState = data.state;
+        stateMachine.stateChangeTime = new Date(data.time);
         setStatus(`Persisted state: ${data.state}`);
       })
       .catch((e) => {
