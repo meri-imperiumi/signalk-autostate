@@ -9,7 +9,7 @@ const sailing = 'sailing';
 const motoring = 'motoring';
 
 class StateMachine {
-  constructor(positionUpdateMinutes = 10, underWayThresholdMeters = 100, defaultPropulsion = 'sailing') {
+  constructor(positionUpdateMinutes = 10, underWayThresholdMeters = 100, defaultPropulsion = 'sailing', motorStoppedSpeed = 0) {
     this.stateChangeTime = null;
     this.stateChangePosition = null;
     this.positions = new CircularBuffer(positionUpdateMinutes + 1);
@@ -18,6 +18,7 @@ class StateMachine {
     this.underWayThresholdMeters = underWayThresholdMeters;
     this.defaultPropulsion = defaultPropulsion;
     this.currentPropulsion = defaultPropulsion;
+    this.motorStoppedSpeed = motorStoppedSpeed;
     this.currentSpeed = 0;
   }
 
@@ -49,7 +50,7 @@ class StateMachine {
       return this.lastState;
     }
     this.currentPropulsion = newPropulsion;
-    if (this.lastState === motoring && this.currentSpeed === 0) {
+    if (this.lastState === motoring && this.currentSpeed === this.motorStoppedSpeed) {
       // Special-case when motor is stopped and speed is zero
       debug(`Motor stopped while speed is ${this.currentSpeed}, assuming moored`);
       return this.setState(moored, update);
