@@ -80,6 +80,7 @@ module.exports = function createPlugin(app) {
       options.position_minutes,
       options.underway_threshold,
       options.default_propulsion,
+      options.moored_threshold,
     );
     function handleValue(update) {
       setState(stateMachine.update(update), update);
@@ -155,6 +156,13 @@ module.exports = function createPlugin(app) {
         type: 'integer',
         default: 100,
         title: 'Distance the vessel must move within the time to be considered under way (in meters)',
+      },
+      moored_threshold: {
+        type: 'number',
+        default: 0,
+        minimum: 0,
+        maximum: 1,
+        title: 'Speed the vessel can have when stopping the engine to be considered moored immediately (in m/s)',
       },
     },
   };
