@@ -50,7 +50,6 @@ class StateMachine {
       return this.lastState;
     }
     this.currentPropulsion = newPropulsion;
-    debug(this.currentSpeed, this.motorStoppedSpeed);
     if (this.lastState === motoring && this.currentSpeed <= this.motorStoppedSpeed) {
       // Special-case when motor is stopped and speed is zero
       debug(`Motor stopped while speed is ${this.currentSpeed}, assuming moored`);
