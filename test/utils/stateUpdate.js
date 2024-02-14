@@ -55,6 +55,12 @@ module.exports = {
   },
   logUpdate: (stateMachine, expectedState, value, timestamp) => {
     if (value.position) {
+      if (value.speedOverGround) {
+        stateMachine.update({
+          path: 'navigation.speedOverGround',
+          value: value.speedOverGround,
+        });
+      }
       // Basic GPS update
       module.exports.positionWithRealGpsData(
         stateMachine,

@@ -10,6 +10,29 @@ module.exports = {
     const filePath = path.resolve(__dirname, `../logs/${fileName}`);
     return readFile(filePath, 'utf-8');
   },
+  parseNmea: (content) => {
+    const allLines = content.split('\n');
+    return allLines
+      .map((row) => {
+        try {
+          const parsed = nmeaSimple.parseNmeaSentence(row);
+          if (!parsed.latitude) {
+            return null;
+          }
+          return {
+            position: {
+              lat: parsed.latitude,
+              lon: parsed.longitude,
+            },
+            speedOverGround: parsed.speedKnots / 0.5144444444,
+            timestamp: parsed.datetime.getTime(),
+          };
+        } catch (error) {
+          return null;
+        }
+      })
+      .filter((row) => row !== null);
+  },
   parse: (content) => {
     const allLines = content.split('\n');
     return allLines
