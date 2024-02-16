@@ -495,13 +495,53 @@ describe('With actual GPS data', () => {
   describe('with GPS logs of stopping to a harbour', () => {
     let dataFromFile;
     const stateMachine = new StateMachine();
-    before(async () => {
+    beforeEach(async () => {
       dataFromFile = await logs.readFile('rmc-2024-02-13.log');
     });
-    after(() => {
+    afterEach(() => {
       stateUpdate.reset();
     });
-    it('should stay start with motoring and end up moored when motor stops', () => {
+    it('should stay start with motoring and end up sailing when motor stops with threshold 0', () => {
+      const values = logs.parseNmea(dataFromFile);
+      let expectedState = 'motoring';
+      const initialPoint = values[0];
+      stateMachine.setState('motoring', {
+        path: 'navigation.position',
+        value: new Point(
+          initialPoint.position.lat,
+          initialPoint.position.lon,
+        ),
+        time: new Date(initialPoint.timestamp),
+      });
+      stateMachine.currentPropulsion = 'motoring';
+      stateMachine.motorStoppedSpeed = 0;
+      // Then run the log
+      values.forEach((data) => {
+        stateUpdate.logUpdate(
+          stateMachine,
+          expectedState,
+          data,
+          data.timestamp,
+        );
+        if (data.timestamp === 1707612848000) {
+          // Stop the engine here
+          expectedState = 'sailing';
+          stateUpdate.logUpdate(stateMachine, expectedState, {
+            updates: [
+              {
+                values: [
+                  {
+                    path: 'propulsion.main.state',
+                    value: 'stopped',
+                  },
+                ],
+              },
+            ],
+          }, data.timestamp);
+        }
+      });
+    });
+    it('should stay start with motoring and end up moored when motor stops with threshold 0.2', () => {
       const values = logs.parseNmea(dataFromFile);
       let expectedState = 'motoring';
       const initialPoint = values[0];
