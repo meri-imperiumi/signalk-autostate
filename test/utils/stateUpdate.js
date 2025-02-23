@@ -17,6 +17,17 @@ module.exports = {
     assert.equal(stateMachine.update(update), expectedState);
   },
 
+  anchor: (stateMachine, expectedState, value, minutesElapsed) => {
+    const update = {
+      path: 'navigation.anchor.position',
+      time: latestTime || new Date(),
+      value,
+    };
+    update.time.setMinutes(update.time.getMinutes() + minutesElapsed);
+    latestTime = new Date(update.time.getTime());
+    assert.equal(stateMachine.update(update), expectedState);
+  },
+
   positionWithRealGpsData: (
     stateMachine,
     expectedState,
