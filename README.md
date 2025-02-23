@@ -16,6 +16,8 @@ The vessel navigation state can be useful for AIS data, as well as for customizi
 
 ## Changes
 
+* 0.5.0 (2025-02-23)
+  - Added a five minute extra grace period after deactivating anchor alarm before boat is considered moored
 * 0.4.0 (2024-02-16)
   - Speed threshold where stopping the engine will set state to "moored" immediately is now configurable
 * 0.3.1 (2023-07-27)
