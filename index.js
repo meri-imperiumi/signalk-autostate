@@ -119,8 +119,7 @@ module.exports = function createPlugin(app) {
         stateMachine.stateChangeTime = new Date(data.time);
         setStatus(`Persisted state: ${data.state}`);
       })
-      .catch((e) => {
-        app.error(e.message);
+      .catch(() => {
         const initialState = app.getSelfPath('navigation.state');
         if (initialState) {
           currentStatus.state = initialState;
