@@ -25,13 +25,13 @@ class StateMachine {
   setState(state, update) {
     if (state !== this.lastState) {
       debug(`State has changed from ${this.lastState} to ${state}`);
-      this.stateChangeTime = update.time;
+      this.stateChangeTime = update.time || new Date();
       if (update.path === 'navigation.position') {
         this.setPosition(update.value);
       }
       this.lastState = state;
     } else if (state === sailing || state === motoring) {
-      this.stateChangeTime = update.time;
+      this.stateChangeTime = update.time || new Date();
       if (update.path === 'navigation.position') {
         this.setPosition(update.value);
       }
