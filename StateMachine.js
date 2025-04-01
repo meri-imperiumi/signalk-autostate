@@ -73,12 +73,7 @@ class StateMachine {
         return this.setState(anchored, update);
       }
       // With null value the anchor is hoisted
-      const newState = this.setState(this.currentPropulsion, update);
-      // Here we need to give a bit more time from deactivating anchor alarm
-      // to getting under way without a "fake moored" in between
-      this.stateChangeTime.setMinutes(this.stateChangeTime.getMinutes() + 5);
-
-      return newState;
+      return this.setState(this.currentPropulsion, update);
     }
 
     if (update.path.match(/propulsion\.([A-Za-z0-9]+)\.state/)) {
