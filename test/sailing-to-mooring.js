@@ -32,12 +32,12 @@ describe('transition from sailing to moored', () => {
     stateUpdate.position(stateMachine, 'sailing', mooringPoint1.lat, mooringPoint1.lon, 10);
   });
   it('should return that we are not under way when we have not moved in 10 minutes', () => {
-    stateUpdate.position(stateMachine, 'moored', mooringPoint1.lat, mooringPoint1.lon, 11);
+    stateUpdate.position(stateMachine, 'moored', mooringPoint1.lat, mooringPoint1.lon, 10);
   });
   it('should still return that we are not under way when we have not moved in 20 minutes', () => {
-    stateUpdate.position(stateMachine, 'moored', mooringPoint1.lat, mooringPoint1.lon, 21);
+    stateUpdate.position(stateMachine, 'moored', mooringPoint1.lat, mooringPoint1.lon, 10);
   });
   it('should still return that we are not under way when we have moved only slightly', () => {
-    stateUpdate.position(stateMachine, 'moored', mooringPoint2.lat, mooringPoint2.lon, 11);
+    stateUpdate.position(stateMachine, 'moored', mooringPoint2.lat, mooringPoint2.lon, 10);
   });
 });
