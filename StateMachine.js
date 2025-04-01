@@ -141,6 +141,10 @@ class StateMachine {
         distance.speed = distance.dist / distance.time;
       }
       if (distance.dist < this.underWayThresholdMeters) {
+        if ((distance.time / 60) < this.positionUpdateMinutes) {
+          debug(`Has only moved ${Math.round(distance.dist)} meters in ${Math.round(distance.time / 60)} minutes (${distance.speed.toFixed(2)}m/s). Ignoring since below time treshold`);
+          return this.lastState;
+        }
         debug(`Has only moved ${Math.round(distance.dist)} meters in ${Math.round(distance.time / 60)} minutes (${distance.speed.toFixed(2)}m/s)`);
         return this.setState(moored, positionUpdate);
       }

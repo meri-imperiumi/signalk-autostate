@@ -24,16 +24,23 @@ describe('transition from anchored to sailing', () => {
     stateUpdate.reset();
   });
   it('should set state as anchored when given anchor position', () => {
-    stateUpdate.anchor(stateMachine, 'anchored', {
-      latitude: 60.254558,
-      longitude: 25.042828,
-    }, 0);
+    stateUpdate.anchor(stateMachine, 'anchored', initialPoint, 0);
   });
   it('should remain anchored despite moving about', () => {
     stateUpdate.position(stateMachine, 'anchored', pointOutOfBounds.lat, pointOutOfBounds.lon, 20);
+    stateUpdate.position(stateMachine, 'anchored', initialPoint.lat, initialPoint.lon, 20);
   });
   it('should set state as sailing when given NULL anchor position', () => {
     stateUpdate.anchor(stateMachine, 'sailing', null, 4);
+  });
+  it('should stay sailing when immediately given point next to anchor', () => {
+    stateUpdate.position(stateMachine, 'sailing', initialPoint.lat, initialPoint.lon, 0);
+  });
+  it('should stay sailing when not moving for a few minutes', () => {
+    for (let i = 9; i > 0; i -= 1) {
+      stateUpdate.position(stateMachine, 'sailing', initialPoint.lat, initialPoint.lon, 1);
+      console.log(i);
+    }
   });
   it('should return that we are sailing, when position has not changed within 10min of hoisting anchor', () => {
     stateUpdate.position(stateMachine, 'sailing', pointOutOfBounds.lat, pointOutOfBounds.lon, 10);
