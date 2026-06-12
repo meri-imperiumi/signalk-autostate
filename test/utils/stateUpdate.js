@@ -28,6 +28,17 @@ module.exports = {
     assert.equal(stateMachine.update(update), expectedState);
   },
 
+  engine: (stateMachine, expectedState, engine, value) => {
+    const update = {
+      path: `propulsion.${engine}.state`,
+      time: latestTime || new Date(),
+      value,
+    };
+    update.time.setMinutes(update.time.getMinutes());
+    latestTime = new Date(update.time.getTime());
+    assert.equal(stateMachine.update(update), expectedState);
+  },
+
   positionWithRealGpsData: (
     stateMachine,
     expectedState,
@@ -107,7 +118,7 @@ module.exports = {
               timestamp,
             );
           }
-          if (v.path === 'propulsion.main.state') {
+          if (v.path.match(/propulsion\.([A-Za-z0-9]+)\.state/)) {
             assert.equal(stateMachine.update({
               ...v,
               time: new Date(timestamp),
