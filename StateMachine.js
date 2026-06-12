@@ -20,6 +20,7 @@ class StateMachine {
     this.currentPropulsion = defaultPropulsion;
     this.motorStoppedSpeed = motorStoppedSpeed;
     this.currentSpeed = 0;
+    this.engineStates = {};
   }
 
   setState(state, update) {
@@ -44,7 +45,13 @@ class StateMachine {
     this.stateChangePosition = position;
   }
 
-  switchMotoringSailing(newPropulsion, update) {
+  switchMotoringSailing(engine, engineIsRunning, update) {
+    this.engineStates[engine] = engineIsRunning;
+    const anyEngineRunning = Object
+      .keys(this.engineStates)
+      .find((eng) => this.engineStates[eng]);
+    const newPropulsion = anyEngineRunning ? 'motoring' : this.defaultPropulsion;
+
     const oldPropulsion = this.currentPropulsion;
     if (oldPropulsion === newPropulsion) {
       return this.lastState;
@@ -76,17 +83,19 @@ class StateMachine {
       return this.setState(this.currentPropulsion, update);
     }
 
-    if (update.path.match(/propulsion\.([A-Za-z0-9]+)\.state/)) {
+    const propulsionState = update.path.match(/propulsion\.([A-Za-z0-9]+)\.state/);
+    if (propulsionState) {
       if (update.value === 'started') {
-        return this.switchMotoringSailing(motoring, update);
+        return this.switchMotoringSailing(propulsionState[1], true, update);
       }
-      return this.switchMotoringSailing(this.defaultPropulsion, update);
+      return this.switchMotoringSailing(propulsionState[1], false, update);
     }
-    if (update.path.match(/propulsion\.([A-Za-z0-9]+)\.revolutions/)) {
+    const propulsionRevolutions = update.path.match(/propulsion\.([A-Za-z0-9]+)\.revolutions/);
+    if (propulsionRevolutions) {
       if (update.value > 0) {
-        return this.switchMotoringSailing(motoring, update);
+        return this.switchMotoringSailing(propulsionRevolutions[1], true, update);
       }
-      return this.switchMotoringSailing(this.defaultPropulsion, update);
+      return this.switchMotoringSailing(propulsionRevolutions[1], false, update);
     }
     if (update.path === 'navigation.position' && this.lastState !== anchored) {
       // inHarbour we have moved less than 100 meters in 10 minutes
