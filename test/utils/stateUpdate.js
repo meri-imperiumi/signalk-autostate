@@ -86,6 +86,13 @@ module.exports = {
     if (value.updates) {
       value.updates.forEach((val) => {
         val.values.forEach((v) => {
+          if (v.path === 'navigation.position') {
+            console.log('here');
+            assert.equal(stateMachine.update({
+              ...v,
+              time: new Date(timestamp),
+            }), expectedState);
+          }
           if (v.path === 'navigation.speedOverGround') {
             assert.equal(stateMachine.update({
               ...v,

@@ -3,6 +3,24 @@ const StateMachine = require('../StateMachine');
 const stateUpdate = require('./utils/stateUpdate');
 const logs = require('./utils/logs');
 
+describe('With faulty GPS data', () => {
+  const stateMachine = new StateMachine();
+  it('should not crash', () => {
+    stateUpdate.logUpdate(stateMachine, null, {
+      updates: [
+        {
+          values: [
+            {
+              path: 'navigation.position',
+              value: null,
+            },
+          ],
+        },
+      ],
+    }, new Date());
+  });
+});
+
 describe('With actual GPS data', () => {
   describe('using an hour of sailing', () => {
     let dataFromFile;

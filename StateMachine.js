@@ -89,6 +89,11 @@ class StateMachine {
       return this.switchMotoringSailing(this.defaultPropulsion, update);
     }
     if (update.path === 'navigation.position' && this.lastState !== anchored) {
+      if (!update.value || update.value.latitude == null || update.value.longitude == null) {
+        // Safety for empty positions
+        return this.lastState;
+      }
+
       // inHarbour we have moved less than 100 meters in 10 minutes
       const positionUpdate = {
         time: update.time,
