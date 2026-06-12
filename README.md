@@ -16,6 +16,8 @@ The vessel navigation state can be useful for AIS data, as well as for customizi
 
 ## Changes
 
+* 0.6.0 (2026-06-12)
+  - Added support for multiple engines on the vessel
 * 0.5.1 (2025-04-07)
   - Fixed the "fake moored" after hoisting anchor
 * 0.5.0 (2025-02-23)
