@@ -1,4 +1,4 @@
-* 0.6.1 (git master)
+* 0.6.1 (2026-06-16)
   - Added application icon and other Signal K app store improvements
 * 0.6.0 (2026-06-12)
   - Added support for multiple engines on the vessel
