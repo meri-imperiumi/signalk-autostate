@@ -16,6 +16,14 @@
     "signalk-category-utility"
   ],
   "signalk-plugin-enabled-by-default": true,
+  "signalk": {
+    "appIcon": "./doc/appicon.png",
+    "displayName": "Automatic Vessel State",
+    "recommends": [
+      "@meri-imperiumi/signalk-triplogger",
+      "@meri-imperiumi/signalk-logbook"
+    ]
+  },
   "author": "Henri Bergius <henri.bergius@iki.fi> and Cannonerd",
   "license": "MIT",
   "bugs": {
