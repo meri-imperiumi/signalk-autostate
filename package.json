@@ -21,7 +21,7 @@
     "displayName": "Automatic Vessel State",
     "recommends": [
       "@meri-imperiumi/signalk-triplogger",
-      "@meri-imperiumi/signalk-logbook"
+      "@meri-imperiumi/signalk-alternator-engine-on"
     ],
     "screenshots": [
       "./doc/config.png"
