@@ -22,6 +22,9 @@
     "recommends": [
       "@meri-imperiumi/signalk-triplogger",
       "@meri-imperiumi/signalk-logbook"
+    ],
+    "screenshots": [
+      "./doc/config.png"
     ]
   },
   "author": "Henri Bergius <henri.bergius@iki.fi> and Cannonerd",
