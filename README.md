@@ -16,4 +16,4 @@ The vessel navigation state can be useful for AIS data, as well as for customizi
 
 ## Changes
 
-See <CHANGELOG.md>
+See [Changelog](CHANGELOG.md)
