@@ -37,6 +37,10 @@ module.exports = function createPlugin(app) {
           path: 'navigation.speedOverGround',
           period: 6000,
         },
+        {
+          path: 'watch.state.onWatch',
+          period: 6000,
+        },
       ],
     };
 
@@ -81,6 +85,7 @@ module.exports = function createPlugin(app) {
       options.underway_threshold,
       options.default_propulsion,
       options.moored_threshold,
+      options.watch_keep_moving,
     );
     function handleValue(update) {
       setState(stateMachine.update(update), update);
@@ -162,6 +167,11 @@ module.exports = function createPlugin(app) {
         minimum: 0,
         maximum: 1,
         title: 'Speed the vessel can have when stopping the engine to be considered moored immediately (in m/s)',
+      },
+      watch_keep_moving: {
+        type: 'boolean',
+        default: true,
+        title: 'Keep the vessel under way if there\'s an active watch schedule running even if speed drops under threshold',
       },
     },
   };

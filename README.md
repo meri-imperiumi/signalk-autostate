@@ -9,6 +9,8 @@ Currently inputs used are:
 * `navigation.position`: if the vessel moves less than 100 meters in 10 minutes, it is set as "moored", otherwise it is set as "sailing"
 * `propulsion.*.revolutions` is used to determine whether the vessel is "sailing" or "motoring" when considered to be moving
 * `propulsion.*.state` (value `started` or `stopped`) is used to determine whether the vessel is "sailing" or "motoring" when considered to be moving
+* `navigation.speedOverGround` is used to trigger `moored` immediately if engine is stopped when speed is zero
+* `watch.state.onWatch` is used to help eliminate "false moored" when drifting but there is an active watch schedule. Anchor alarm or stopping motor at zero speed will still trigger moored
 
 The default means of propulsion ("sailing" or "motoring") when moving can be chosen in the plugin settings.
 

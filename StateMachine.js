@@ -9,7 +9,7 @@ const sailing = 'sailing';
 const motoring = 'motoring';
 
 class StateMachine {
-  constructor(positionUpdateMinutes = 10, underWayThresholdMeters = 100, defaultPropulsion = 'sailing', motorStoppedSpeed = 0) {
+  constructor(positionUpdateMinutes = 10, underWayThresholdMeters = 100, defaultPropulsion = 'sailing', motorStoppedSpeed = 0, watchKeepMoving = true) {
     this.stateChangeTime = null;
     this.stateChangePosition = null;
     this.positions = new CircularBuffer(positionUpdateMinutes + 1);
@@ -19,7 +19,9 @@ class StateMachine {
     this.defaultPropulsion = defaultPropulsion;
     this.currentPropulsion = defaultPropulsion;
     this.motorStoppedSpeed = motorStoppedSpeed;
+    this.watchKeepMoving = watchKeepMoving;
     this.currentSpeed = 0;
+    this.currentOnWatch = false;
     this.engineStates = {};
   }
 
@@ -73,6 +75,9 @@ class StateMachine {
   update(update) {
     if (update.path === 'navigation.speedOverGround') {
       this.currentSpeed = update.value;
+    }
+    if (update.path === 'watch.state.onWatch') {
+      this.currentOnWatch = update.value;
     }
     if (update.path === 'navigation.anchor.position') {
       if (update.value) {
@@ -157,6 +162,10 @@ class StateMachine {
       if (distance.dist < this.underWayThresholdMeters) {
         if ((distance.time / 60) < this.positionUpdateMinutes) {
           debug(`Has only moved ${Math.round(distance.dist)} meters in ${Math.round(distance.time / 60)} minutes (${distance.speed.toFixed(2)}m/s). Ignoring since below time treshold`);
+          return this.lastState;
+        }
+        if (this.watchKeepMoving && this.currentOnWatch) {
+          debug(`Has only moved ${Math.round(distance.dist)} meters in ${Math.round(distance.time / 60)} minutes (${distance.speed.toFixed(2)}m/s). Ignoring since watch schedule is active`);
           return this.lastState;
         }
         debug(`Has only moved ${Math.round(distance.dist)} meters in ${Math.round(distance.time / 60)} minutes (${distance.speed.toFixed(2)}m/s)`);
