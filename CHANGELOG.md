@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.6.2] - 2026-07-02
+### Added
+- Support for keeping vessel under way if there's an active watch schedule and boat speed drops below threshold
+
 ## [0.6.1] - 2026-06-16
 ### Added
 - Added application icon and other Signal K app store improvements
