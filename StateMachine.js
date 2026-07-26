@@ -160,7 +160,13 @@ class StateMachine {
         distance.speed = distance.dist / distance.time;
       }
       if (distance.dist < this.underWayThresholdMeters) {
-        if ((distance.time / 60) < this.positionUpdateMinutes) {
+        // Round to whole minutes, like the staleness check above does. The
+        // accumulated window is bounded by the sample buffer, so comparing the
+        // exact figure makes this check fail permanently when the samples do
+        // not land precisely on the sampling period (for example a 1 Hz GPS
+        // behind a throttled subscription, where they arrive a few seconds
+        // early and get dropped by the one-per-minute guard).
+        if (Math.round(distance.time / 60) < this.positionUpdateMinutes) {
           debug(`Has only moved ${Math.round(distance.dist)} meters in ${Math.round(distance.time / 60)} minutes (${distance.speed.toFixed(2)}m/s). Ignoring since below time treshold`);
           return this.lastState;
         }
