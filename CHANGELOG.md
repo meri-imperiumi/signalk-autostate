@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.6.3] - 2026-07-27
+### Fixed
+- Getting to moored state when samples are not exactly in sampling period #237
+
 ## [0.6.2] - 2026-07-02
 ### Added
 - Support for keeping vessel under way if there's an active watch schedule and boat speed drops below threshold
