@@ -84,8 +84,13 @@ class StateMachine {
         // anchor position has a value, we have dropped the anchor
         return this.setState(anchored, update);
       }
-      // With null value the anchor is hoisted
-      return this.setState(this.currentPropulsion, update);
+      if (this.lastState === anchored) {
+        // Position -> null: hoisted
+        return this.setState(this.currentPropulsion, update);
+      }
+      // Null while not anchored is no hoist. Keyed on state, not on the
+      // previous value: a restored persisted anchored state has seen no delta.
+      return this.lastState;
     }
 
     const propulsionState = update.path.match(/propulsion\.([A-Za-z0-9]+)\.state/);
