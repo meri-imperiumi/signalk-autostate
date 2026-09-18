@@ -3,10 +3,27 @@ const CircularBuffer = require('circular-buffer');
 const debug = require('debug')('signalk-autostate:statemachine:update');
 const debugFallback = require('debug')('signalk-autostate:statemachine:fallback');
 
+// Receiver noise, in meters and m/s: not a function of the threshold or the
+// window length, so absolute.
+const JITTER_EXTENT_METERS = 50;
+const JITTER_MAX_SPEED = 0.5;
+
 const moored = 'moored';
 const anchored = 'anchored';
 const sailing = 'sailing';
 const motoring = 'motoring';
+
+// Bounding box diagonal in meters. Does not grow with jitter around a point.
+function extentOf(positions) {
+  if (positions.length < 2) {
+    return 0;
+  }
+  const lats = positions.map((p) => p.lat);
+  const lons = positions.map((p) => p.lon);
+  const southWest = new Point(Math.min(...lats), Math.min(...lons));
+  const northEast = new Point(Math.max(...lats), Math.max(...lons));
+  return southWest.distanceTo(northEast) * 1000;
+}
 
 class StateMachine {
   constructor(positionUpdateMinutes = 10, underWayThresholdMeters = 100, defaultPropulsion = 'sailing', motorStoppedSpeed = 0, watchKeepMoving = true) {
@@ -150,16 +167,28 @@ class StateMachine {
           dist: d.dist + dist,
           time: d.time + elapsed,
           speed: d.speed,
+          window: d.window.concat([u.value]),
         };
       }, {
         dist: 0,
         time: 0,
         speed: 0,
+        window: [this.positions.get(0).value],
       });
       if (distance.time && distance.dist) {
         distance.speed = distance.dist / distance.time;
       }
-      if (distance.dist < this.underWayThresholdMeters) {
+      // The path length accumulates noise past the threshold; the extent does
+      // not. Inside the jitter limits the vessel has not moved, however long
+      // its path.
+      const extent = extentOf(distance.window);
+      const jitter = distance.dist >= this.underWayThresholdMeters
+        && extent < Math.min(JITTER_EXTENT_METERS, this.underWayThresholdMeters / 2)
+        && this.currentSpeed <= JITTER_MAX_SPEED;
+      if (jitter) {
+        debug(`Has moved ${Math.round(distance.dist)} meters but stayed within ${Math.round(extent)} meters in ${Math.round(distance.time / 60)} minutes`);
+      }
+      if (distance.dist < this.underWayThresholdMeters || jitter) {
         // Round to whole minutes, like the staleness check above does. The
         // accumulated window is bounded by the sample buffer, so comparing the
         // exact figure makes this check fail permanently when the samples do
