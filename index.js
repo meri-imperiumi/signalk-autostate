@@ -48,7 +48,8 @@ module.exports = function createPlugin(app) {
     let lastUpdate = 0;
     function setState(state, update) {
       const currentUpdate = new Date().getTime();
-      if (currentStatus.state === state && (lastUpdate + 600000) > currentUpdate) {
+      const changed = currentStatus.state !== state;
+      if (!changed && (lastUpdate + 600000) > currentUpdate) {
         return;
       }
       currentStatus.state = state;
@@ -59,7 +60,11 @@ module.exports = function createPlugin(app) {
             source: {
               label: plugin.id,
             },
-            timestamp: update.time || new Date().toISOString(),
+            // Signal K timestamps say when the value was valid: a change
+            // carries the movement, not the fix that proved it.
+            timestamp: ((changed && stateMachine.stateValidFrom)
+              || update.time
+              || new Date()).toISOString(),
             values: [
               {
                 path: 'navigation.state',

@@ -8,6 +8,32 @@ const anchored = 'anchored';
 const sailing = 'sailing';
 const motoring = 'motoring';
 
+// The sample buffer runs newest first.
+function oldestOf(window) {
+  if (!window.length) {
+    return null;
+  }
+  return window[window.length - 1].time;
+}
+
+// Departure is after the last fix still at the window's starting point, within
+// a tenth of the movement threshold. Not at the fix that completed the proof.
+function departureFrom(window, thresholdMeters) {
+  if (window.length < 2) {
+    return oldestOf(window);
+  }
+  const origin = window[window.length - 1];
+  const tolerance = thresholdMeters / 10;
+  let departed = origin;
+  for (let i = window.length - 2; i >= 0; i -= 1) {
+    if (origin.value.distanceTo(window[i].value) * 1000 > tolerance) {
+      break;
+    }
+    departed = window[i];
+  }
+  return departed.time;
+}
+
 class StateMachine {
   constructor(positionUpdateMinutes = 10, underWayThresholdMeters = 100, defaultPropulsion = 'sailing', motorStoppedSpeed = 0, watchKeepMoving = true) {
     this.stateChangeTime = null;
@@ -23,9 +49,15 @@ class StateMachine {
     this.currentSpeed = 0;
     this.currentOnWatch = false;
     this.engineStates = {};
+    this.stateValidFrom = null;
   }
 
-  setState(state, update) {
+  setState(state, update, validFrom) {
+    // Only a change has a moment it became true. Re-proving happens on every
+    // fix, and backdating that reports a permanently stale value.
+    this.stateValidFrom = (state !== this.lastState && validFrom)
+      || update.time
+      || null;
     if (state !== this.lastState) {
       debug(`State has changed from ${this.lastState} to ${state}`);
       this.stateChangeTime = update.time || new Date();
@@ -164,11 +196,13 @@ class StateMachine {
           dist: d.dist + dist,
           time: d.time + elapsed,
           speed: d.speed,
+          window: d.window.concat([u]),
         };
       }, {
         dist: 0,
         time: 0,
         speed: 0,
+        window: [this.positions.get(0)],
       });
       if (distance.time && distance.dist) {
         distance.speed = distance.dist / distance.time;
@@ -189,7 +223,7 @@ class StateMachine {
           return this.lastState;
         }
         debug(`Has only moved ${Math.round(distance.dist)} meters in ${Math.round(distance.time / 60)} minutes (${distance.speed.toFixed(2)}m/s)`);
-        return this.setState(moored, positionUpdate);
+        return this.setState(moored, positionUpdate, oldestOf(distance.window));
       }
       if (this.lastState === 'moored' && this.currentSpeed === 0 && (positionUpdate.time - this.stateChangeTime) / 60000 < 10) {
         debug(`Has moved > ${this.underWayThresholdMeters}m (${Math.round(distance.dist)} meters) but speed is zero, assuming staying moored`);
@@ -197,7 +231,8 @@ class StateMachine {
       }
       // If we are not in harbour we are sailing or motoring
       debug(`Has moved > ${this.underWayThresholdMeters}m (${Math.round(distance.dist)} meters in ${Math.round(distance.time / 60)} minutes, ${distance.speed.toFixed(2)}m/s)`);
-      return this.setState(this.currentPropulsion, positionUpdate);
+      const departedAt = departureFrom(distance.window, this.underWayThresholdMeters);
+      return this.setState(this.currentPropulsion, positionUpdate, departedAt);
     }
     return this.lastState;
   }
