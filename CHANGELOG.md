@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+### Changed
+- `navigation.state` deltas are now timestamped from when the state became true rather than from the fix that proved it: an arrival is dated to the start of the movement window it covers, and a departure to the last fix still at the starting point. Re-proving the current state still carries the current time
+
+### Fixed
+- Reset the position buffer when a position update arrives with a timestamp older than the buffered head sample (for example a corrupt GPS timestamp or a second position source with an independent clock). Previously such a sample poisoned the buffer permanently and `navigation.state` stayed frozen until server restart
+- Added debug output on the position discard path
+
 ## [0.6.3] - 2026-07-27
 ### Fixed
 - Getting to moored state when samples are not exactly in sampling period #237

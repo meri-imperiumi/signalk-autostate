@@ -122,7 +122,16 @@ class StateMachine {
       };
       if (this.positions.size() > 0) {
         // Ensure that a minute has elapsed
-        if ((positionUpdate.time - this.positions.get(0).time) / 1000 < 60) {
+        const elapsed = (positionUpdate.time - this.positions.get(0).time) / 1000;
+        if (elapsed < 0) {
+          // Head sample is in the future relative to incoming data: it cannot
+          // be trusted (for example a corrupt GPS timestamp or a second
+          // position source with an independent clock). Start over rather
+          // than discarding everything after it
+          debug('Position sample older than buffer head, resetting buffer');
+          this.positions = new CircularBuffer(this.positionUpdateMinutes + 1);
+        } else if (elapsed < 60) {
+          debug('Less than a minute since last buffered sample, ignoring position update');
           return this.lastState;
         }
       }
