@@ -8,6 +8,9 @@
 - Reset the position buffer when a position update arrives with a timestamp older than the buffered head sample (for example a corrupt GPS timestamp or a second position source with an independent clock). Previously such a sample poisoned the buffer permanently and `navigation.state` stayed frozen until server restart
 - Added debug output on the position discard path
 
+### Changed
+- Upgraded mocha to ^12.0.2: mocha 10 pulled in yargs 16, whose extensionless CommonJS entry breaks on modern Node (`require is not defined in ES module scope`)
+
 ## [0.6.3] - 2026-07-27
 ### Fixed
 - Getting to moored state when samples are not exactly in sampling period #237
