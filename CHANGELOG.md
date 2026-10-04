@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Changed
 - `navigation.state` deltas are now timestamped from when the state became true rather than from the fix that proved it: an arrival is dated to the start of the movement window it covers, and a departure to the last fix still at the starting point. Re-proving the current state still carries the current time
+- Bump the `where` dependency to `^0.4.3`, which fixes its bearing calculations across the antimeridian. Autostate itself only uses `distanceTo` (already seam-safe), but the bump keeps the antimeridian-fixed upstream version pinned
 
 ### Fixed
 - Reset the position buffer when a position update arrives with a timestamp older than the buffered head sample (for example a corrupt GPS timestamp or a second position source with an independent clock). Previously such a sample poisoned the buffer permanently and `navigation.state` stayed frozen until server restart
