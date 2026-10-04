@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [0.6.4] - 2026-10-05
 ### Changed
 - `navigation.state` deltas are now timestamped from when the state became true rather than from the fix that proved it: an arrival is dated to the start of the movement window it covers, and a departure to the last fix still at the starting point. Re-proving the current state still carries the current time
 - Bump the `where` dependency to `^0.4.3`, which fixes its bearing calculations across the antimeridian. Autostate itself only uses `distanceTo` (already seam-safe), but the bump keeps the antimeridian-fixed upstream version pinned
